@@ -32,7 +32,7 @@ export default function PaymentReceivedEmail({
   amountPaid = '₹45,000.00',
   scheduledStart = 'Jan 15, 2024 10:00 AM',
   scheduledEnd = 'Jan 15, 2024 4:00 PM',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
 }: PaymentReceivedEmailProps) {
   return (
     <Html>

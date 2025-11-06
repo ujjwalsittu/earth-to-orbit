@@ -25,8 +25,8 @@ export default function RequestRejectedEmail({
   requestNumber = 'REQ-2024-00001',
   title = 'TVAC Testing Request',
   reason = 'The requested time slot is not available. Please select an alternative date.',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
-  supportEmail = 'support@e2o.com',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
+  supportEmail = process.env.SUPPORT_EMAIL || 'support@earth-to-orbit.com',
 }: RequestRejectedEmailProps) {
   return (
     <Html>

@@ -22,7 +22,7 @@ export default function RegistrationEmail({
   firstName = 'User',
   organizationName = 'Your Organization',
   email = 'user@example.com',
-  loginUrl = 'https://e2o.com/login',
+  loginUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/login` : 'https://earth-to-orbit.com/login',
 }: RegistrationEmailProps) {
   return (
     <Html>

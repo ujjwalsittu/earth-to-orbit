@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { config } from '@/lib/config';
 
 export default function Error({
   error,
@@ -67,8 +68,8 @@ export default function Error({
         <div className="mt-12 pt-8 border-t border-white/10">
           <p className="text-sm text-slate-400">
             If this problem persists, please contact our support team at{' '}
-            <a href="mailto:support@e2o.com" className="text-blue-400 hover:text-blue-300">
-              support@e2o.com
+            <a href={`mailto:${config.company.supportEmail}`} className="text-blue-400 hover:text-blue-300">
+              {config.company.supportEmail}
             </a>
           </p>
         </div>

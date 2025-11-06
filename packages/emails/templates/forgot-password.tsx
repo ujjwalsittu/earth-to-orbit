@@ -19,7 +19,7 @@ interface ForgotPasswordEmailProps {
 
 export default function ForgotPasswordEmail({
   firstName = 'User',
-  resetUrl = 'https://e2o.com/reset-password',
+  resetUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/reset-password` : 'https://earth-to-orbit.com/reset-password',
   expiryHours = 24,
 }: ForgotPasswordEmailProps) {
   return (

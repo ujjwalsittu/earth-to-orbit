@@ -24,7 +24,7 @@ export default function RequestSubmittedEmail({
   requestNumber = 'REQ-2024-00001',
   title = 'TVAC Testing Request',
   totalAmount = '₹45,000.00',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
 }: RequestSubmittedEmailProps) {
   return (
     <Html>

@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/lib/api-client';
 import { useAuthStore } from '@/lib/store';
+import { config } from '@/lib/config';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -101,15 +102,17 @@ export default function LoginPage() {
               Register your organization
             </Link>
           </div>
-          <div className="mt-6 p-4 bg-muted rounded-md">
-            <p className="text-xs font-semibold mb-2">Demo Credentials:</p>
-            <p className="text-xs text-muted-foreground">
-              <strong>Admin:</strong> admin@earth-to-orbit.com / Admin@123456
-            </p>
-            <p className="text-xs text-muted-foreground">
-              <strong>Org Admin:</strong> admin@spacetech.in / OrgAdmin@123
-            </p>
-          </div>
+          {config.isDevelopment && (
+            <div className="mt-6 p-4 bg-muted rounded-md">
+              <p className="text-xs font-semibold mb-2">Demo Credentials:</p>
+              <p className="text-xs text-muted-foreground">
+                <strong>Admin:</strong> {config.demo.adminEmail} / {config.demo.adminPassword}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                <strong>Org Admin:</strong> {config.demo.orgAdminEmail} / {config.demo.orgAdminPassword}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

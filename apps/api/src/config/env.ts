@@ -23,6 +23,13 @@ const envSchema = z.object({
   FROM_EMAIL: z.string().email().default('noreply@earth-to-orbit.com'),
   FROM_NAME: z.string().default('Earth To Orbit'),
 
+  COMPANY_NAME: z.string().default('Earth To Orbit'),
+  COMPANY_EMAIL: z.string().email().default('contact@earth-to-orbit.com'),
+  SUPPORT_EMAIL: z.string().email().default('support@earth-to-orbit.com'),
+  COMPANY_WEBSITE: z.string().url().default('https://earth-to-orbit.com'),
+  COMPANY_PHONE: z.string().default('+91-80-XXXX-XXXX'),
+  COMPANY_ADDRESS: z.string().default('Bangalore, Karnataka, India'),
+
   AWS_REGION: z.string().default('ap-south-1'),
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
@@ -32,6 +39,11 @@ const envSchema = z.object({
 
   ADMIN_EMAIL: z.string().email().default('admin@earth-to-orbit.com'),
   ADMIN_PASSWORD: z.string().min(8).default('Admin@123456'),
+
+  DEMO_ORG_ADMIN_EMAIL: z.string().email().default('admin@spacetech.in'),
+  DEMO_ORG_ADMIN_PASSWORD: z.string().default('OrgAdmin@123'),
+  DEMO_ORG_MEMBER_EMAIL: z.string().email().default('engineer@spacetech.in'),
+  DEMO_ORG_MEMBER_PASSWORD: z.string().default('Member@123'),
 });
 
 export const env = envSchema.parse(process.env);

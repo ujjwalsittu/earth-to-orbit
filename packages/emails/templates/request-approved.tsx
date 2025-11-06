@@ -30,7 +30,7 @@ export default function RequestApprovedEmail({
   scheduledEnd = 'Jan 15, 2024 4:00 PM',
   invoiceNumber = 'INV-2024-00001',
   totalAmount = '₹45,000.00',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
 }: RequestApprovedEmailProps) {
   return (
     <Html>

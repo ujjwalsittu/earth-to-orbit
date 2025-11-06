@@ -32,7 +32,7 @@ export default function ExtensionRequestEmail({
   additionalHours = 2,
   additionalCost = '₹15,000.00',
   reason = 'Additional testing time required',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
   isApproved = false,
   adminMessage,
 }: ExtensionRequestEmailProps) {

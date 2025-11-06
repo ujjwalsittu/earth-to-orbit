@@ -7,6 +7,7 @@ import {
   Radio, Thermometer, Activity, Users, TrendingUp, Globe,
   Award, Target, Rocket, Star
 } from 'lucide-react';
+import { config } from '@/lib/config';
 
 export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -30,7 +31,7 @@ export default function LandingPage() {
                 <Satellite className="h-8 w-8" />
               </div>
             </div>
-            <span className="text-xl font-bold text-white">Earth To Orbit</span>
+            <span className="text-xl font-bold text-white">{config.company.name}</span>
           </div>
           <nav className="hidden space-x-6 md:flex">
             <Link href="#problem" className="text-sm text-gray-300 hover:text-white transition">
@@ -984,7 +985,7 @@ export default function LandingPage() {
             <div>
               <div className="mb-4 flex items-center space-x-2">
                 <Satellite className="h-6 w-6 text-blue-400" />
-                <span className="font-bold text-white">Earth To Orbit</span>
+                <span className="font-bold text-white">{config.company.name}</span>
               </div>
               <p className="text-sm text-gray-400">
                 B2B aerospace infrastructure platform
@@ -1047,7 +1048,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 border-t border-blue-900/20 pt-8 text-center text-sm text-gray-400">
-            © 2024 Earth To Orbit. All rights reserved.
+            © {new Date().getFullYear()} {config.company.name}. All rights reserved.
           </div>
         </div>
       </footer>

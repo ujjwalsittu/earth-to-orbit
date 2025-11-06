@@ -24,7 +24,7 @@ export default function RequestResubmitEmail({
   requestNumber = 'REQ-2024-00001',
   title = 'TVAC Testing Request',
   adminMessage = 'Please update your requested time slot. The current slot has a conflict with scheduled maintenance.',
-  requestUrl = 'https://e2o.com/dashboard/requests/123',
+  requestUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard/requests/123` : 'https://earth-to-orbit.com/dashboard/requests/123',
 }: RequestResubmitEmailProps) {
   return (
     <Html>
