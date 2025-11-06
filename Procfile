@@ -1,7 +1,7 @@
 # Railway Procfile for Earth To Orbit API
 
 # Main API Server
-web: cd apps/api && node dist/index.js
+web: cd apps/api && node dist/server.js
 
 # Database Seed Script (run manually using: railway run seed)
 seed: pnpm seed
