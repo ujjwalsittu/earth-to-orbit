@@ -5,12 +5,13 @@ import Link from 'next/link';
 import {
   ArrowRight, Satellite, Zap, Shield, Clock, CheckCircle,
   Radio, Thermometer, Activity, Users, TrendingUp, Globe,
-  Award, Target, Rocket, Star
+  Award, Target, Rocket, Star, Menu, X
 } from 'lucide-react';
 import { config } from '@/lib/config';
 
 export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,14 +27,16 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center space-x-2">
             <div className="relative">
-              <Satellite className="h-8 w-8 text-blue-400 animate-pulse" />
-              <div className="absolute inset-0 h-8 w-8 text-blue-400 animate-ping opacity-20">
-                <Satellite className="h-8 w-8" />
+              <Satellite className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 animate-pulse" />
+              <div className="absolute inset-0 h-6 w-6 sm:h-8 sm:w-8 text-blue-400 animate-ping opacity-20">
+                <Satellite className="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
             </div>
-            <span className="text-xl font-bold text-white">{config.company.name}</span>
+            <span className="text-lg sm:text-xl font-bold text-white">{config.company.name}</span>
           </div>
-          <nav className="hidden space-x-6 md:flex">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6">
             <Link href="#problem" className="text-sm text-gray-300 hover:text-white transition">
               Why E2O
             </Link>
@@ -50,7 +53,9 @@ export default function LandingPage() {
               Customers
             </Link>
           </nav>
-          <div className="flex items-center space-x-4">
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               href="/login"
               className="text-sm text-gray-300 hover:text-white transition"
@@ -64,7 +69,75 @@ export default function LandingPage() {
               Start Free Trial
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-blue-900/20 bg-slate-950/98 backdrop-blur-md">
+            <nav className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+              <Link
+                href="#problem"
+                className="text-gray-300 hover:text-white transition py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Why E2O
+              </Link>
+              <Link
+                href="#solutions"
+                className="text-gray-300 hover:text-white transition py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Solutions
+              </Link>
+              <Link
+                href="#facilities"
+                className="text-gray-300 hover:text-white transition py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Facilities
+              </Link>
+              <Link
+                href="#pricing"
+                className="text-gray-300 hover:text-white transition py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="#testimonials"
+                className="text-gray-300 hover:text-white transition py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Customers
+              </Link>
+              <div className="pt-4 border-t border-blue-900/20 flex flex-col space-y-3">
+                <Link
+                  href="/login"
+                  className="text-center py-2 text-gray-300 hover:text-white transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-center rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-3 font-medium text-white hover:from-blue-700 hover:to-cyan-700 transition shadow-lg shadow-blue-500/30"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Start Free Trial
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">
@@ -90,7 +163,7 @@ export default function LandingPage() {
 
             {/* Earth */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="relative h-96 w-96">
+              <div className="relative h-48 w-48 sm:h-64 sm:w-64 md:h-80 md:w-80 lg:h-96 lg:w-96">
                 {/* Earth Core */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-blue-900 opacity-30 blur-2xl animate-pulse-slow" />
 
@@ -157,11 +230,11 @@ export default function LandingPage() {
 
           {/* Hero Content */}
           <div className="container relative z-10 px-4 text-center">
-            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 backdrop-blur-sm">
-              <span className="text-sm text-blue-300 font-medium">🚀 Trusted by 50+ Satellite Manufacturers</span>
+            <div className="inline-block mb-4 px-3 sm:px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 backdrop-blur-sm">
+              <span className="text-xs sm:text-sm text-blue-300 font-medium">🚀 Trusted by 50+ Satellite Manufacturers</span>
             </div>
 
-            <h1 className="mb-6 text-5xl font-bold tracking-tight text-white md:text-7xl leading-tight">
+            <h1 className="mb-6 text-3xl sm:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white leading-tight px-4">
               Stop Waiting Months for
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 animate-gradient">
@@ -169,24 +242,25 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="mx-auto mb-4 max-w-3xl text-xl text-gray-300 md:text-2xl leading-relaxed">
+            <p className="mx-auto mb-6 max-w-3xl text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 leading-relaxed px-4">
               Book TVAC chambers, vibration tables, and cleanrooms <span className="text-cyan-400 font-semibold">instantly</span>.
-              <br />
+              <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>
               Pay only for what you use. Launch faster.
             </p>
 
-            <div className="flex items-center justify-center gap-8 mb-8 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 md:gap-8 mb-8 text-xs sm:text-sm text-gray-400 px-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>Book in 5 minutes</span>
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                <span className="whitespace-nowrap">Book in 5 minutes</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>No long-term contracts</span>
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                <span className="whitespace-nowrap">No long-term contracts</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>30-day free trial</span>
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                <span className="whitespace-nowrap">30-day free trial</span>
               </div>
             </div>
 
@@ -207,20 +281,20 @@ export default function LandingPage() {
             </div>
 
             {/* Social Proof */}
-            <div className="mt-12 flex items-center justify-center gap-8 opacity-60">
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 opacity-60 px-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">500+</div>
-                <div className="text-sm text-gray-400">Tests Completed</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">500+</div>
+                <div className="text-xs sm:text-sm text-gray-400">Tests Completed</div>
               </div>
-              <div className="h-12 w-px bg-gray-700"></div>
+              <div className="h-10 sm:h-12 w-px bg-gray-700 hidden sm:block"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">50+</div>
-                <div className="text-sm text-gray-400">Satellite Companies</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">50+</div>
+                <div className="text-xs sm:text-sm text-gray-400">Satellite Companies</div>
               </div>
-              <div className="h-12 w-px bg-gray-700"></div>
+              <div className="h-10 sm:h-12 w-px bg-gray-700 hidden sm:block"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">99.9%</div>
-                <div className="text-sm text-gray-400">Uptime SLA</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">99.9%</div>
+                <div className="text-xs sm:text-sm text-gray-400">Uptime SLA</div>
               </div>
             </div>
           </div>
@@ -233,10 +307,10 @@ export default function LandingPage() {
               <div className="inline-block mb-4 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/30">
                 <span className="text-sm text-red-300 font-medium">The Old Way Is Broken</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 Satellite Testing Shouldn't Be This Hard
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                 Traditional testing facilities create bottlenecks that delay launches by months
               </p>
             </div>
@@ -248,7 +322,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-red-500/20 border-2 border-red-500">
                     <Clock className="h-8 w-8 text-red-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">3-6 Month Wait Times</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">3-6 Month Wait Times</h3>
                   <p className="text-gray-400 leading-relaxed">
                     Book months in advance or miss your launch window. Competitors get to market first while you're stuck in queue.
                   </p>
@@ -261,7 +335,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-orange-500/20 border-2 border-orange-500">
                     <TrendingUp className="h-8 w-8 text-orange-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Pay For Unused Time</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Pay For Unused Time</h3>
                   <p className="text-gray-400 leading-relaxed">
                     Forced to book full days even if you need 2 hours. Locked into expensive annual contracts you can't escape.
                   </p>
@@ -274,7 +348,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-yellow-500/20 border-2 border-yellow-500">
                     <Target className="h-8 w-8 text-yellow-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Zero Flexibility</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Zero Flexibility</h3>
                   <p className="text-gray-400 leading-relaxed">
                     Test runs over? Pay penalty fees or lose your data. Need to reschedule? Start the 6-month wait again.
                   </p>
@@ -298,10 +372,10 @@ export default function LandingPage() {
               <div className="inline-block mb-4 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30">
                 <span className="text-sm text-green-300 font-medium">The E2O Advantage</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 Book Testing Facilities Like You Book Cloud Servers
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                 On-demand access to world-class satellite testing infrastructure
               </p>
             </div>
@@ -316,7 +390,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-cyan-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Instant Booking</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Instant Booking</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     See real-time availability and book in minutes. No phone calls, no email chains, no waiting weeks for quotes.
                   </p>
@@ -336,7 +410,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-blue-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Pay Per Hour</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Pay Per Hour</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     Book exactly what you need. Need 4 hours? Pay for 4 hours. Test finishes early? No penalty fees.
                   </p>
@@ -356,7 +430,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-purple-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Extend Anytime</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Extend Anytime</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     Test taking longer? Extend your booking in real-time if capacity is available. No rescheduling nightmare.
                   </p>
@@ -376,7 +450,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-green-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Expert Support</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Expert Support</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     Trained aerospace technicians on-site. Real-time monitoring, data validation, and emergency support included.
                   </p>
@@ -396,7 +470,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-yellow-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Real-Time Data</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Real-Time Data</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     Access test data, temperature logs, and vibration profiles through our dashboard. Download anytime, anywhere.
                   </p>
@@ -416,7 +490,7 @@ export default function LandingPage() {
                     </div>
                     <div className="absolute top-0 right-0 h-16 w-16 bg-pink-400/20 rounded-full blur-xl animate-pulse"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Certified Equipment</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Certified Equipment</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">
                     All facilities meet NASA, ESA, and ISRO standards. Full calibration certificates and test reports provided.
                   </p>
@@ -437,10 +511,10 @@ export default function LandingPage() {
               <div className="inline-block mb-4 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30">
                 <span className="text-sm text-blue-300 font-medium">World-Class Infrastructure</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 Equipment Built for Space
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                 From CubeSats to communication satellites, we have the testing infrastructure you need
               </p>
             </div>
@@ -454,7 +528,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-cyan-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">TVAC Chambers</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">TVAC Chambers</h3>
                     <p className="text-cyan-400 text-sm">Thermal Vacuum Testing</p>
                   </div>
                 </div>
@@ -493,7 +567,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-purple-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">Vibration Tables</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">Vibration Tables</h3>
                     <p className="text-purple-400 text-sm">Launch Simulation</p>
                   </div>
                 </div>
@@ -532,7 +606,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-green-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">ISO Cleanrooms</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">ISO Cleanrooms</h3>
                     <p className="text-green-400 text-sm">Satellite Assembly</p>
                   </div>
                 </div>
@@ -571,7 +645,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-yellow-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">EMC Testing</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">EMC Testing</h3>
                     <p className="text-yellow-400 text-sm">Electromagnetic Compatibility</p>
                   </div>
                 </div>
@@ -610,7 +684,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-pink-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">Acoustic Testing</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">Acoustic Testing</h3>
                     <p className="text-pink-400 text-sm">Launch Noise Simulation</p>
                   </div>
                 </div>
@@ -649,7 +723,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 blur-xl bg-orange-400/30 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">Solar Simulation</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">Solar Simulation</h3>
                     <p className="text-orange-400 text-sm">Power System Testing</p>
                   </div>
                 </div>
@@ -690,10 +764,10 @@ export default function LandingPage() {
               <div className="inline-block mb-4 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30">
                 <span className="text-sm text-cyan-300 font-medium">Transparent Pricing</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 Pay For What You Use
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                 No hidden fees. No annual contracts. Just simple hourly rates.
               </p>
             </div>
@@ -705,7 +779,7 @@ export default function LandingPage() {
                 <div className="relative rounded-2xl border border-cyan-500/30 bg-slate-900/90 backdrop-blur p-8">
                   <div className="mb-6">
                     <Thermometer className="h-10 w-10 text-cyan-400 mb-4" />
-                    <h3 className="text-2xl font-bold text-white mb-2">TVAC Chambers</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">TVAC Chambers</h3>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold text-cyan-400">₹25,000</span>
                       <span className="text-gray-400">/hour</span>
@@ -744,7 +818,7 @@ export default function LandingPage() {
                 <div className="relative rounded-2xl border border-purple-500/30 bg-slate-900/90 backdrop-blur p-8">
                   <div className="mb-6">
                     <Activity className="h-10 w-10 text-purple-400 mb-4" />
-                    <h3 className="text-2xl font-bold text-white mb-2">Vibration Tables</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Vibration Tables</h3>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold text-purple-400">₹18,000</span>
                       <span className="text-gray-400">/hour</span>
@@ -783,7 +857,7 @@ export default function LandingPage() {
                 <div className="relative rounded-2xl border border-green-500/30 bg-slate-900/90 backdrop-blur p-8">
                   <div className="mb-6">
                     <Shield className="h-10 w-10 text-green-400 mb-4" />
-                    <h3 className="text-2xl font-bold text-white mb-2">ISO Cleanrooms</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">ISO Cleanrooms</h3>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold text-green-400">₹12,000</span>
                       <span className="text-gray-400">/hour</span>
@@ -844,7 +918,7 @@ export default function LandingPage() {
               <div className="inline-block mb-4 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30">
                 <span className="text-sm text-blue-300 font-medium">Trusted by Leaders</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 What Our Customers Say
               </h2>
             </div>
@@ -860,7 +934,7 @@ export default function LandingPage() {
                   <div className="flex justify-center mb-6">
                     <Users className="h-16 w-16 text-blue-400" />
                   </div>
-                  <p className="text-xl text-gray-300 leading-relaxed mb-8 italic">
+                  <p className="text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed mb-8 italic">
                     "E2O cut our testing turnaround time from 4 months to 2 weeks. The instant booking and pay-per-hour model is exactly what the industry needed. We've tested 3 satellites with them so far."
                   </p>
                   <div className="flex items-center justify-center gap-1 mb-4">
@@ -884,7 +958,7 @@ export default function LandingPage() {
                   <div className="flex justify-center mb-6">
                     <Rocket className="h-16 w-16 text-purple-400" />
                   </div>
-                  <p className="text-xl text-gray-300 leading-relaxed mb-8 italic">
+                  <p className="text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed mb-8 italic">
                     "The TVAC chamber data quality is exceptional. Real-time monitoring saved us when we discovered a thermal issue 6 hours into testing. Extended our booking instantly and fixed the problem. Worth every rupee."
                   </p>
                   <div className="flex items-center justify-center gap-1 mb-4">
@@ -908,7 +982,7 @@ export default function LandingPage() {
                   <div className="flex justify-center mb-6">
                     <Satellite className="h-16 w-16 text-green-400" />
                   </div>
-                  <p className="text-xl text-gray-300 leading-relaxed mb-8 italic">
+                  <p className="text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed mb-8 italic">
                     "As a startup, we can't commit to expensive annual contracts. E2O's pay-per-use model let us test our CubeSat prototype without breaking the bank. The technicians were incredibly helpful too."
                   </p>
                   <div className="flex items-center justify-center gap-1 mb-4">
@@ -948,10 +1022,10 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-cyan-600/20 to-purple-600/20 rounded-3xl blur-2xl"></div>
               <div className="relative rounded-3xl border border-blue-500/30 bg-slate-900/80 backdrop-blur p-16">
                 <Rocket className="h-16 w-16 text-cyan-400 mx-auto mb-6 animate-pulse" />
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                   Ready to Test Your Satellite?
                 </h2>
-                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                   Join 50+ aerospace companies who have already launched faster with E2O. Start your free 30-day trial today.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

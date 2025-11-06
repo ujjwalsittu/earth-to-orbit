@@ -60,8 +60,8 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Satellite className="h-8 w-8 text-blue-500" />
-            <span className="text-2xl font-bold">Earth To Orbit</span>
+            <Satellite className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+            <span className="text-xl sm:text-2xl font-bold">{config.company.name}</span>
           </div>
           <CardTitle className="text-2xl text-center">Sign in</CardTitle>
           <CardDescription className="text-center">

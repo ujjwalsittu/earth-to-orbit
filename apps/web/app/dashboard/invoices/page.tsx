@@ -170,56 +170,58 @@ export default function InvoicesPage() {
               ))}
             </div>
           ) : invoices.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice #</TableHead>
-                  <TableHead>Request #</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow key={invoice._id}>
-                    <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                    <TableCell>
-                      {invoice.requestId?.requestNumber || 'N/A'}
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {formatCurrency(invoice.totalAmount || invoice.total)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(invoice.paymentStatus || invoice.status)}>
-                        {invoice.paymentStatus || invoice.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {(invoice.paymentStatus === 'PENDING' || invoice.status === 'PENDING') && (
-                          <Link href={`/dashboard/requests/${invoice.requestId?._id || invoice.requestId}`}>
-                            <Button variant="default" size="sm">
-                              Pay Now
-                            </Button>
-                          </Link>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDownloadPDF(invoice._id)}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          PDF
-                        </Button>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Invoice #</TableHead>
+                    <TableHead className="whitespace-nowrap">Request #</TableHead>
+                    <TableHead className="whitespace-nowrap">Amount</TableHead>
+                    <TableHead className="whitespace-nowrap">Status</TableHead>
+                    <TableHead className="whitespace-nowrap">Due Date</TableHead>
+                    <TableHead className="whitespace-nowrap">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((invoice) => (
+                    <TableRow key={invoice._id}>
+                      <TableCell className="font-medium whitespace-nowrap">{invoice.invoiceNumber}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {invoice.requestId?.requestNumber || 'N/A'}
+                      </TableCell>
+                      <TableCell className="font-semibold whitespace-nowrap">
+                        {formatCurrency(invoice.totalAmount || invoice.total)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(invoice.paymentStatus || invoice.status)}>
+                          {invoice.paymentStatus || invoice.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">{formatDate(invoice.dueDate)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex gap-2">
+                          {(invoice.paymentStatus === 'PENDING' || invoice.status === 'PENDING') && (
+                            <Link href={`/dashboard/requests/${invoice.requestId?._id || invoice.requestId}`}>
+                              <Button variant="default" size="sm">
+                                Pay Now
+                              </Button>
+                            </Link>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadPDF(invoice._id)}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            PDF
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/lib/api-client';
 import { useAuthStore } from '@/lib/store';
+import { config } from '@/lib/config';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -75,8 +76,8 @@ export default function RegisterPage() {
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Satellite className="h-8 w-8 text-blue-500" />
-            <span className="text-2xl font-bold">Earth To Orbit</span>
+            <Satellite className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+            <span className="text-xl sm:text-2xl font-bold">{config.company.name}</span>
           </div>
           <CardTitle className="text-2xl text-center">Register Your Organization</CardTitle>
           <CardDescription className="text-center">
@@ -87,7 +88,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {step === 1 ? (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Organization Name *</Label>
                     <Input
@@ -118,7 +119,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="registrationNumber">CIN/Registration Number *</Label>
                     <Input
@@ -229,7 +230,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="contactEmail">Contact Email *</Label>
                     <Input
@@ -274,7 +275,7 @@ export default function RegisterPage() {
               </>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name *</Label>
                     <Input

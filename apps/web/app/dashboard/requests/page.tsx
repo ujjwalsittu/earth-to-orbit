@@ -158,38 +158,40 @@ export default function RequestsPage() {
               ))}
             </div>
           ) : filteredRequests.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Request #</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRequests.map((request) => (
-                  <TableRow key={request._id}>
-                    <TableCell className="font-medium">{request.requestNumber}</TableCell>
-                    <TableCell>{request.title}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
-                    </TableCell>
-                    <TableCell>{formatCurrency(request.totals?.total || 0)}</TableCell>
-                    <TableCell>{formatDate(request.createdAt)}</TableCell>
-                    <TableCell>
-                      <Link href={`/dashboard/requests/${request._id}`}>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                    </TableCell>
+            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Request #</TableHead>
+                    <TableHead className="whitespace-nowrap">Title</TableHead>
+                    <TableHead className="whitespace-nowrap">Status</TableHead>
+                    <TableHead className="whitespace-nowrap">Total</TableHead>
+                    <TableHead className="whitespace-nowrap">Created</TableHead>
+                    <TableHead className="whitespace-nowrap">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell className="font-medium whitespace-nowrap">{request.requestNumber}</TableCell>
+                      <TableCell className="min-w-[200px]">{request.title}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">{formatCurrency(request.totals?.total || 0)}</TableCell>
+                      <TableCell className="whitespace-nowrap">{formatDate(request.createdAt)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <Link href={`/dashboard/requests/${request._id}`}>
+                          <Button variant="outline" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">No requests yet</p>
