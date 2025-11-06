@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -15,16 +15,25 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiClient } from '@/lib/api-client';
 import { formatDate, formatCurrency } from '@/lib/utils';
 
 export default function RequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
     loadRequests();
   }, []);
+
+  useEffect(() => {
+    filterRequests();
+  }, [requests, searchQuery, statusFilter]);
 
   const loadRequests = async () => {
     try {
@@ -37,6 +46,27 @@ export default function RequestsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterRequests = () => {
+    let filtered = [...requests];
+
+    // Apply search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (req) =>
+          req.requestNumber?.toLowerCase().includes(query) ||
+          req.title?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'ALL') {
+      filtered = filtered.filter((req) => req.status === statusFilter);
+    }
+
+    setFilteredRequests(filtered);
   };
 
   const getStatusColor = (status: string) => {
@@ -68,6 +98,46 @@ export default function RequestsPage() {
         </Link>
       </div>
 
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by request number or title..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="w-full md:w-48">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Statuses</SelectItem>
+                  <SelectItem value="DRAFT">Draft</SelectItem>
+                  <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                  <SelectItem value="APPROVED">Approved</SelectItem>
+                  <SelectItem value="REJECTED">Rejected</SelectItem>
+                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                  <SelectItem value="PAID">Paid</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {(searchQuery || statusFilter !== 'ALL') && (
+            <div className="mt-4 text-sm text-muted-foreground">
+              Showing {filteredRequests.length} of {requests.length} requests
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>All Requests</CardTitle>
@@ -87,7 +157,7 @@ export default function RequestsPage() {
                 </div>
               ))}
             </div>
-          ) : requests.length > 0 ? (
+          ) : filteredRequests.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -100,7 +170,7 @@ export default function RequestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.map((request) => (
+                {filteredRequests.map((request) => (
                   <TableRow key={request._id}>
                     <TableCell className="font-medium">{request.requestNumber}</TableCell>
                     <TableCell>{request.title}</TableCell>
