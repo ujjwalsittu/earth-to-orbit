@@ -1,28 +1,33 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import path from 'path';
 
-dotenv.config();
+// Load environment variables from root .env file
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 const envSchema = z.object({
+  // Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
-  API_BASE_URL: z.string().url(),
-  FRONTEND_URL: z.string().url(),
 
+  // URLs
+  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+
+  // Database
   MONGODB_URI: z.string().min(1),
 
-  JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default('7d'),
-  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+  // JWT Authentication
+  JWT_SECRET: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(1),
 
+  // Payment Gateway - Razorpay
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
-  RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
 
+  // Email Service - Resend
   RESEND_API_KEY: z.string().optional(),
-  FROM_EMAIL: z.string().email().default('noreply@earth-to-orbit.com'),
-  FROM_NAME: z.string().default('Earth To Orbit'),
 
+  // Company/Branding
   COMPANY_NAME: z.string().default('Earth To Orbit'),
   COMPANY_EMAIL: z.string().email().default('contact@earth-to-orbit.com'),
   SUPPORT_EMAIL: z.string().email().default('support@earth-to-orbit.com'),
@@ -30,20 +35,20 @@ const envSchema = z.object({
   COMPANY_PHONE: z.string().default('+91-80-XXXX-XXXX'),
   COMPANY_ADDRESS: z.string().default('Bangalore, Karnataka, India'),
 
+  // AWS S3 (Optional)
   AWS_REGION: z.string().default('ap-south-1'),
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
-  S3_BUCKET_NAME: z.string().default('e2o-receipts'),
+  AWS_S3_BUCKET: z.string().default('earth-to-orbit-uploads'),
 
-  GST_PERCENT: z.coerce.number().default(18),
-
-  ADMIN_EMAIL: z.string().email().default('admin@earth-to-orbit.com'),
-  ADMIN_PASSWORD: z.string().min(8).default('Admin@123456'),
-
+  // Demo/Seed Data Credentials
+  DEMO_PLATFORM_ADMIN_EMAIL: z.string().email().default('admin@earth-to-orbit.com'),
+  DEMO_PLATFORM_ADMIN_PASSWORD: z.string().default('Admin@123456'),
   DEMO_ORG_ADMIN_EMAIL: z.string().email().default('admin@spacetech.in'),
   DEMO_ORG_ADMIN_PASSWORD: z.string().default('OrgAdmin@123'),
   DEMO_ORG_MEMBER_EMAIL: z.string().email().default('engineer@spacetech.in'),
   DEMO_ORG_MEMBER_PASSWORD: z.string().default('Member@123'),
+  DEMO_ORG_EMAIL: z.string().email().default('contact@spacetech.in'),
 });
 
 export const env = envSchema.parse(process.env);

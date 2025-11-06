@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables
-dotenv.config({ path: path.join(__dirname, '../apps/api/.env') });
+// Load environment variables from root .env file
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import User, { UserRole } from '../apps/api/src/models/User';
 import Organization, { OrganizationType } from '../apps/api/src/models/Organization';

@@ -115,63 +115,59 @@ pnpm install
 
 ### 2. Configure Environment
 
-#### API (apps/api/.env)
+**Single unified `.env` file** at the root - both API and Web read from this file.
 
 ```bash
-cp apps/api/.env.example apps/api/.env
+cp .env.example .env
 ```
 
-Edit `apps/api/.env`:
+Edit `.env` with your configuration:
 
 ```env
-# Server
+# Environment
 NODE_ENV=development
 PORT=4000
-API_BASE_URL=http://localhost:4000
-FRONTEND_URL=http://localhost:3000
 
 # Database
-MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/earth-to-orbit?retryWrites=true&w=majority
+MONGODB_URI=mongodb://localhost:27017/earth-to-orbit
+# For MongoDB Atlas: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/earth-to-orbit
 
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-min-32-chars
-JWT_EXPIRES_IN=7d
+# JWT Secrets (CHANGE THESE IN PRODUCTION!)
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_REFRESH_SECRET=your-super-secret-refresh-token-key-change-this
 
-# Razorpay (optional)
+# URLs
+FRONTEND_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Payment Gateway - Razorpay (optional)
 RAZORPAY_KEY_ID=rzp_test_xxxxx
 RAZORPAY_KEY_SECRET=your_secret
-RAZORPAY_WEBHOOK_SECRET=whsec_xxxxx
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxx
 
-# Resend Email (optional)
+# Email Service - Resend (optional)
 RESEND_API_KEY=re_xxxxx
-FROM_EMAIL=noreply@earth-to-orbit.com
 
-# AWS S3 (optional)
+# AWS S3 for file uploads (optional)
 AWS_REGION=ap-south-1
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret
-S3_BUCKET_NAME=e2o-receipts
+AWS_S3_BUCKET=earth-to-orbit-uploads
 
-# Tax
-GST_PERCENT=18
+# Company Branding
+COMPANY_NAME=Earth To Orbit
+COMPANY_EMAIL=contact@earth-to-orbit.com
+SUPPORT_EMAIL=support@earth-to-orbit.com
 
-# Admin Defaults
-ADMIN_EMAIL=admin@earth-to-orbit.com
-ADMIN_PASSWORD=Admin@123456
+# Frontend public variables
+NEXT_PUBLIC_COMPANY_NAME=Earth To Orbit
+NEXT_PUBLIC_DEVELOPER_NAME=Ujjwal Sittu
+NEXT_PUBLIC_DEVELOPER_COUNTRY=🇮🇳
 ```
 
-#### Web (apps/web/.env.local)
-
-```bash
-cp apps/web/.env.example apps/web/.env.local
-```
-
-Edit `apps/web/.env.local`:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
+> **Note:** All variables prefixed with `NEXT_PUBLIC_` are exposed to the browser.
+> Never put secrets in `NEXT_PUBLIC_` variables!
 
 ### 3. Seed Database
 

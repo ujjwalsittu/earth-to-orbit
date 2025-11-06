@@ -1,6 +1,11 @@
 /**
  * Frontend environment configuration
- * All public environment variables accessed here
+ *
+ * This file reads environment variables from the root .env file.
+ * Next.js automatically loads .env files from the project root.
+ *
+ * All frontend environment variables must be prefixed with NEXT_PUBLIC_
+ * to be exposed to the browser. Never put secrets here!
  */
 
 export const config = {

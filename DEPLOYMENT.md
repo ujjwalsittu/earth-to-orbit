@@ -30,40 +30,46 @@ pnpm install
 
 ### 3. Environment Setup
 
-#### Backend (.env)
+**Use a single `.env` file at the root** - both API and Web applications read from this unified configuration.
 
-Copy `apps/api/.env.example` to `apps/api/.env`:
+Copy `.env.example` to `.env`:
 
 ```bash
-cp apps/api/.env.example apps/api/.env
+cp .env.example .env
 ```
 
-Configure the following variables:
+Configure the following variables for production:
 
 ```env
-# Server
+# Environment
 NODE_ENV=production
 PORT=4000
-API_BASE_URL=https://api.yourdomain.com
-FRONTEND_URL=https://yourdomain.com
 
-# Database
+# URLs (Update with your domain)
+FRONTEND_URL=https://yourdomain.com
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+
+# Database (Use MongoDB Atlas for production)
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/earth-to-orbit?retryWrites=true&w=majority
 
-# JWT (Generate a secure 32+ character secret)
-JWT_SECRET=your-super-secret-jwt-key-min-32-chars-change-this
-JWT_EXPIRES_IN=7d
-JWT_REFRESH_EXPIRES_IN=30d
+# JWT Secrets (MUST generate secure random strings!)
+JWT_SECRET=<generate-a-secure-random-string-min-32-chars>
+JWT_REFRESH_SECRET=<generate-another-secure-random-string-min-32-chars>
 
-# Razorpay
+# Payment Gateway - Razorpay (Use LIVE keys for production)
 RAZORPAY_KEY_ID=rzp_live_xxxxx
 RAZORPAY_KEY_SECRET=your_razorpay_secret
-RAZORPAY_WEBHOOK_SECRET=whsec_xxxxx
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxx
 
-# Resend Email
+# Email Service - Resend
 RESEND_API_KEY=re_xxxxx
-FROM_EMAIL=noreply@yourdomain.com
-FROM_NAME=Your Company Name
+
+# AWS S3 for file uploads
+AWS_REGION=ap-south-1
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_S3_BUCKET=your-production-bucket
 
 # Company/Branding
 COMPANY_NAME=Your Company Name
@@ -73,11 +79,17 @@ COMPANY_WEBSITE=https://yourdomain.com
 COMPANY_PHONE=+91-80-XXXX-XXXX
 COMPANY_ADDRESS=Your Address
 
-# AWS S3
-AWS_REGION=ap-south-1
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-S3_BUCKET_NAME=your-bucket-name
+# Frontend Public Variables
+NEXT_PUBLIC_COMPANY_NAME=Your Company Name
+NEXT_PUBLIC_COMPANY_EMAIL=contact@yourdomain.com
+NEXT_PUBLIC_SUPPORT_EMAIL=support@yourdomain.com
+NEXT_PUBLIC_DEVELOPER_NAME=Your Name
+NEXT_PUBLIC_DEVELOPER_COUNTRY=🇮🇳
+NEXT_PUBLIC_ENV=production
+
+# Disable demo credentials in production
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+NEXT_PUBLIC_ENABLE_NOTIFICATIONS=true
 
 # Tax Configuration
 GST_PERCENT=18
