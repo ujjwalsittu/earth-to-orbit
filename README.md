@@ -27,18 +27,18 @@ A full-stack Turborepo monorepo featuring Next.js 14, Express API, MongoDB, Razo
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Monorepo** | Turborepo + pnpm workspaces |
-| **Frontend** | Next.js 14 (App Router), shadcn/ui, Tailwind, Framer Motion |
-| **Backend** | Express, TypeScript, Zod validation |
-| **Database** | MongoDB Atlas + Mongoose |
-| **Auth** | Custom JWT with bcrypt |
-| **Payments** | Razorpay + Bank Transfer |
-| **Email** | Resend |
-| **Storage** | AWS S3 (receipts) |
-| **Deployment** | Docker + docker-compose, Vercel (web), Railway (API) |
-| **Security** | Helmet, rate limiting, CORS, input validation |
+| Layer          | Technology                                                  |
+| -------------- | ----------------------------------------------------------- |
+| **Monorepo**   | Turborepo + pnpm workspaces                                 |
+| **Frontend**   | Next.js 14 (App Router), shadcn/ui, Tailwind, Framer Motion |
+| **Backend**    | Express, TypeScript, Zod validation                         |
+| **Database**   | MongoDB Atlas + Mongoose                                    |
+| **Auth**       | Custom JWT with bcrypt                                      |
+| **Payments**   | Razorpay + Bank Transfer                                    |
+| **Email**      | Resend                                                      |
+| **Storage**    | AWS S3 (receipts)                                           |
+| **Deployment** | Docker + docker-compose, Vercel (web), Railway (API)        |
+| **Security**   | Helmet, rate limiting, CORS, input validation               |
 
 ---
 
@@ -76,17 +76,7 @@ earth-to-orbit/
 │   │       └── index.ts
 │   │
 │   ├── config/                   # Shared configs (ESLint, TypeScript, Tailwind)
-│   │
-│   └── emails/                   # React Email templates
-│       └── templates/
-│           ├── registration.tsx          # Welcome email
-│           ├── forgot-password.tsx       # Password reset
-│           ├── request-submitted.tsx     # Booking confirmation
-│           ├── request-approved.tsx      # Approval with invoice
-│           ├── request-rejected.tsx      # Rejection with reason
-│           ├── request-resubmit.tsx      # Admin feedback
-│           ├── payment-received.tsx      # Payment confirmation
-│           └── extension-request.tsx     # Extension pending/approved
+│   └── emails/                   # React Email templates (future)
 │
 ├── scripts/
 │   └── seed-data.ts              # Database seeding with realistic aerospace data
@@ -190,6 +180,7 @@ pnpm seed
 ```
 
 This creates:
+
 - **2 Sites**: Bangalore (BLR-01), Hyderabad (HYD-01)
 - **9 Categories**: Environmental Testing, Vibration, EMC, Thermal, Cleanrooms, etc.
 - **5 Labs**: TVAC Chamber, Vibration Table, RF Anechoic Chamber, Thermal Cycler, Cleanroom
@@ -220,6 +211,7 @@ pnpm dev
 ```
 
 Access:
+
 - **Frontend**: http://localhost:3000
 - **API**: http://localhost:4000
 - **Health Check**: http://localhost:4000/health
@@ -232,6 +224,7 @@ docker-compose up --build
 ```
 
 Ports:
+
 - **Web**: http://localhost:3000
 - **API**: http://localhost:4000
 - **MongoDB**: localhost:27017
@@ -255,6 +248,7 @@ All protected endpoints require `Authorization: Bearer <token>` header.
 Register organization and admin user.
 
 **Request:**
+
 ```json
 {
   "organization": {
@@ -284,6 +278,7 @@ Register organization and admin user.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -299,6 +294,7 @@ Register organization and admin user.
 #### POST /auth/login
 
 **Request:**
+
 ```json
 {
   "email": "admin@myaerospace.com",
@@ -313,10 +309,12 @@ Register organization and admin user.
 Query labs/machinery.
 
 **Query Params:**
+
 - `siteId` (optional)
 - `categoryId` (optional)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -419,72 +417,26 @@ Get calendar view of bookings.
 
 ### Auth Pages (/login, /register)
 
-✅ **Fully Implemented:**
-- Login page with demo credentials display
-- Multi-step organization registration (org details → admin user)
-- Form validation with real-time feedback
-- Toast notifications for success/error
-- Auto-redirect based on user role
-- Zustand state persistence
+- Organization registration with validation
+- User login with JWT
+- Protected route redirects
 
 ### Dashboard (/dashboard)
 
-✅ **Fully Implemented:**
-- **Overview**: Stats cards (total/pending/approved/invoices), quick actions, recent requests
-- **My Requests**:
-  - Search by request number or title
-  - Filter by status (Draft, Submitted, Approved, etc.)
-  - Real-time filtering with results counter
-  - Table with status badges and pagination
-- **New Request** (Multi-Step Wizard):
-  - Step 1: Basic Info (title, description)
-  - Step 2: Labs & Machinery (site filtering, date/time pickers, duration calc)
-  - Step 3: Components (optional, dynamic add/remove)
-  - Step 4: Review with real-time cost estimation + GST
-- **Request Detail**:
-  - Equipment lists with subtotals and pricing breakdown
-  - Invoice cards with PDF download
-  - Razorpay payment integration (opens checkout modal)
-  - Bank transfer dialog with receipt upload
-  - Extension request button (for scheduled bookings)
-- **Invoices**:
-  - Stats cards (total, paid, pending, total amount)
-  - Request # column with links
-  - "Pay Now" button for pending invoices
-  - Loading skeletons
-- **Notifications**:
-  - List with read/unread states (blue highlight)
-  - Mark as read (individual/bulk)
-  - Unread count badge
-- **Settings**:
-  - **Profile Tab**: Personal info, change password
-  - **Organization Tab**: Full org details (role-based editing)
-  - Loading skeletons and toast notifications
-- **Protected Routes**: Role-based access with automatic redirects
-- **Navigation**: Responsive header with Settings link
+- **Request Builder**: Multi-step form for creating bookings
+- **My Requests**: List with status filters
+- **Invoices**: List with PDF download
+- **Extensions**: Request additional hours
+- **Notifications**: Real-time updates
 
 ### Admin Dashboard (/admin)
 
-✅ **Fully Implemented:**
-- **Dashboard**:
-  - 6 stats cards (pending requests, total requests, orgs, users, pending payments, total revenue)
-  - Quick Actions card (Review Requests, Verify Payments, Manage Catalog)
-  - Recent Activity section (latest 5 requests with status badges)
-  - Loading skeletons for all sections
-- **Requests**: Pending requests queue with one-click approve/reject
-- **Payments**:
-  - Pending bank transfer verifications table
-  - View receipt URLs and transaction details
-  - Approve/Reject payments with one click
-  - Statistics cards (pending count, total amount)
-- **Catalog Management**: View/edit sites, labs, components with pricing
-- **User Management**:
-  - 6 stats cards (total users, admins breakdown, orgs breakdown)
-  - **Users Tab**: Search by name/email/org, filter by role, color-coded badges
-  - **Organizations Tab**: Search, display joined date, status badges
-  - Loading skeletons and empty states
-- **Dark Theme Navigation**: Professional admin interface with Payments link
-- **RBAC**: Platform Admin only access
+- **Pending Requests**: Queue for approval
+- **Calendar View**: Site/lab bookings visualization
+- **Catalog Management**: CRUD for sites, labs, components, staff
+- **Payment Verification**: Bank transfer approvals
+- **User Management**: Org/user overview
+- **Audit Logs**: Activity tracking
 
 ---
 
@@ -517,6 +469,7 @@ vercel --prod
 ```
 
 **Environment Variables:**
+
 - `NEXT_PUBLIC_API_URL`: Production API URL
 
 ### Backend (Railway/Render)
