@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <div className="relative min-h-screen">{children}</div>
         <Toaster />
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </body>
     </html>
   );

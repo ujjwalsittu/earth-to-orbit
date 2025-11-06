@@ -14,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { apiClient } from '@/lib/api-client';
 import { formatDate, formatCurrency } from '@/lib/utils';
 
@@ -52,10 +53,6 @@ export default function RequestsPage() {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -77,7 +74,20 @@ export default function RequestsPage() {
           <CardDescription>View and track all your booking requests</CardDescription>
         </CardHeader>
         <CardContent>
-          {requests.length > 0 ? (
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-8 w-24 rounded-full" />
+                  <Skeleton className="h-12 w-24" />
+                  <Skeleton className="h-12 w-24" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : requests.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>

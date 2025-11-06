@@ -1,0 +1,22 @@
+{
+  "name": "@e2o/emails",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./templates/*": "./templates/*.tsx"
+  },
+  "scripts": {
+    "dev": "email dev",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.14",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.3.3",
+    "react-email": "^2.0.0"
+  }
+}
