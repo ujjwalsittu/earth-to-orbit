@@ -8,6 +8,7 @@ import {
   FileText,
   CreditCard,
   Bell,
+  Settings,
   LogOut,
   Menu
 } from 'lucide-react';
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/dashboard/requests', label: 'My Requests', icon: FileText },
   { href: '/dashboard/invoices', label: 'Invoices', icon: CreditCard },
   { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
 export function DashboardNav() {
