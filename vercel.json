@@ -1,0 +1,63 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "buildCommand": "cd apps/web && pnpm install && pnpm build",
+  "devCommand": "cd apps/web && pnpm dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next",
+  "regions": ["bom1"],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@api_url",
+    "NEXT_PUBLIC_SITE_URL": "@site_url",
+    "NEXT_PUBLIC_COMPANY_NAME": "@company_name",
+    "NEXT_PUBLIC_COMPANY_EMAIL": "@company_email",
+    "NEXT_PUBLIC_SUPPORT_EMAIL": "@support_email",
+    "NEXT_PUBLIC_COMPANY_WEBSITE": "@company_website",
+    "NEXT_PUBLIC_COMPANY_PHONE": "@company_phone",
+    "NEXT_PUBLIC_DEVELOPER_NAME": "@developer_name",
+    "NEXT_PUBLIC_DEVELOPER_COUNTRY": "@developer_country",
+    "NEXT_PUBLIC_RAZORPAY_KEY_ID": "@razorpay_key_id",
+    "NEXT_PUBLIC_ENABLE_ANALYTICS": "@enable_analytics",
+    "NEXT_PUBLIC_ENABLE_CHAT_SUPPORT": "@enable_chat_support"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "@api_url",
+      "NEXT_PUBLIC_SITE_URL": "@site_url"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://api.yourdomain.com/api/:path*"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+# Netlify Configuration for Earth To Orbit Web Application
+[build]
+  base = "apps/web"
+  command = "pnpm install && pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Next.js Plugin
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.yourdomain.com https://api.razorpay.com; frame-src https://api.razorpay.com;"
+
+# Redirect rules for SPA
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.yourdomain.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (Set these in Netlify UI)
+# NEXT_PUBLIC_API_URL = "https://api.yourdomain.com/api"
+# NEXT_PUBLIC_SITE_URL = "https://yourdomain.com"
+# NEXT_PUBLIC_COMPANY_NAME = "Earth To Orbit"
+# NEXT_PUBLIC_COMPANY_EMAIL = "contact@earth-to-orbit.com"
+# NEXT_PUBLIC_SUPPORT_EMAIL = "support@earth-to-orbit.com"
+# NEXT_PUBLIC_COMPANY_WEBSITE = "https://earth-to-orbit.com"
+# NEXT_PUBLIC_COMPANY_PHONE = "+91-80-XXXX-XXXX"
+# NEXT_PUBLIC_DEVELOPER_NAME = "Ujjwal Sittu"
+# NEXT_PUBLIC_DEVELOPER_COUNTRY = "🇮🇳"
+# NEXT_PUBLIC_RAZORPAY_KEY_ID = "rzp_live_xxxxxxxxxxxxxxxx"
+# NEXT_PUBLIC_ENABLE_ANALYTICS = "true"
+# NEXT_PUBLIC_ENABLE_CHAT_SUPPORT = "false"
+
+# Functions (if needed in future)
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Dev server settings
+[dev]
+  command = "pnpm dev"
+  port = 3000
+  targetPort = 3000
+  framework = "#auto"

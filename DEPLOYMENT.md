@@ -204,20 +204,338 @@ pnpm start
 
 Frontend runs on port 3000 by default.
 
-### Option 3: Platform-Specific
+### Option 3: Platform-Specific Deployment
 
-#### Vercel (Frontend)
+This is the recommended approach for production deployments. We provide pre-configured deployment files for major platforms.
 
-1. Connect repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy
+#### 🔷 Vercel (Frontend - Next.js)
 
-#### Railway/Render (Backend)
+**Quick Deploy:**
 
-1. Connect repository
-2. Set environment variables
-3. Set build command: `cd apps/api && pnpm install && pnpm run build`
-4. Set start command: `cd apps/api && pnpm start`
+1. **Connect Repository**
+   - Go to [Vercel Dashboard](https://vercel.com/new)
+   - Import your GitHub repository
+   - Vercel auto-detects Next.js configuration
+
+2. **Configure Project**
+   - Root Directory: `apps/web`
+   - Framework Preset: Next.js
+   - Build Command: Auto-detected
+   - Output Directory: Auto-detected
+
+3. **Set Environment Variables**
+
+   Add these in Vercel Dashboard → Project Settings → Environment Variables:
+
+   ```env
+   NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
+   NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+   NEXT_PUBLIC_COMPANY_NAME=Earth To Orbit
+   NEXT_PUBLIC_COMPANY_EMAIL=contact@earth-to-orbit.com
+   NEXT_PUBLIC_SUPPORT_EMAIL=support@earth-to-orbit.com
+   NEXT_PUBLIC_COMPANY_WEBSITE=https://earth-to-orbit.com
+   NEXT_PUBLIC_COMPANY_PHONE=+91-80-XXXX-XXXX
+   NEXT_PUBLIC_DEVELOPER_NAME=Ujjwal Sittu
+   NEXT_PUBLIC_DEVELOPER_COUNTRY=🇮🇳
+   NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxxxxxx
+   NEXT_PUBLIC_ENABLE_ANALYTICS=true
+   NEXT_PUBLIC_ENABLE_CHAT_SUPPORT=false
+   ```
+
+4. **Deploy**
+   - Click "Deploy"
+   - Vercel builds and deploys automatically
+   - Get your URL: `https://your-project.vercel.app`
+
+5. **Custom Domain (Optional)**
+   - Go to Project Settings → Domains
+   - Add your custom domain
+   - Update DNS records as instructed
+
+**Configuration File:** `vercel.json` (included in repository)
+
+**Using Vercel CLI:**
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login
+vercel login
+
+# Deploy
+cd apps/web
+vercel
+
+# Deploy to production
+vercel --prod
+```
+
+---
+
+#### 🟩 Netlify (Frontend - Alternative to Vercel)
+
+**Quick Deploy:**
+
+1. **Connect Repository**
+   - Go to [Netlify Dashboard](https://app.netlify.com/start)
+   - Click "New site from Git"
+   - Choose your repository
+
+2. **Configure Build Settings**
+   - Base directory: `apps/web`
+   - Build command: `pnpm install && pnpm build`
+   - Publish directory: `.next`
+
+3. **Install Next.js Plugin**
+
+   Netlify automatically detects and installs `@netlify/plugin-nextjs`
+
+4. **Set Environment Variables**
+
+   Add these in Netlify Dashboard → Site Settings → Environment Variables:
+
+   ```env
+   NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
+   NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+   NEXT_PUBLIC_COMPANY_NAME=Earth To Orbit
+   NEXT_PUBLIC_COMPANY_EMAIL=contact@earth-to-orbit.com
+   NEXT_PUBLIC_SUPPORT_EMAIL=support@earth-to-orbit.com
+   NEXT_PUBLIC_COMPANY_WEBSITE=https://earth-to-orbit.com
+   NEXT_PUBLIC_COMPANY_PHONE=+91-80-XXXX-XXXX
+   NEXT_PUBLIC_DEVELOPER_NAME=Ujjwal Sittu
+   NEXT_PUBLIC_DEVELOPER_COUNTRY=🇮🇳
+   NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxxxxxx
+   NEXT_PUBLIC_ENABLE_ANALYTICS=true
+   NEXT_PUBLIC_ENABLE_CHAT_SUPPORT=false
+   ```
+
+5. **Deploy**
+   - Click "Deploy site"
+   - Netlify builds and deploys
+   - Get your URL: `https://your-site.netlify.app`
+
+6. **Custom Domain (Optional)**
+   - Go to Site Settings → Domain Management
+   - Add custom domain
+   - Update DNS records
+
+**Configuration File:** `netlify.toml` (included in repository)
+
+**Using Netlify CLI:**
+
+```bash
+# Install Netlify CLI
+npm i -g netlify-cli
+
+# Login
+netlify login
+
+# Link to existing site or create new
+netlify link
+
+# Deploy
+netlify deploy
+
+# Deploy to production
+netlify deploy --prod
+```
+
+---
+
+#### 🚂 Railway (Backend - API + Database)
+
+**Comprehensive Railway deployment guide available in [`RAILWAY.md`](./RAILWAY.md)**
+
+**Quick Deploy:**
+
+1. **Create Railway Project**
+   - Go to [Railway Dashboard](https://railway.app/new)
+   - Click "New Project"
+   - Choose "Deploy from GitHub repo"
+
+2. **Add MongoDB Database**
+   - In your project, click "New" → "Database" → "MongoDB"
+   - Railway creates a MongoDB instance
+   - Copy connection string from MongoDB service variables
+
+3. **Configure API Service**
+
+   Railway auto-detects the configuration from `railway.json` and `nixpacks.toml`
+
+   **Add Environment Variables:**
+
+   ```env
+   NODE_ENV=production
+   PORT=4000
+
+   # Database (from Railway MongoDB service)
+   MONGODB_URI=mongodb://...  # Auto-populated by Railway
+
+   # URLs
+   FRONTEND_URL=https://yourdomain.com
+   API_URL=https://your-api.up.railway.app
+
+   # JWT Secrets (Generate 64-char random strings!)
+   JWT_SECRET=<64-char-random-string>
+   JWT_REFRESH_SECRET=<64-char-random-string>
+
+   # Email - Resend
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxx
+   EMAIL_FROM_ADDRESS=noreply@yourdomain.com
+   EMAIL_FROM_NAME=Earth To Orbit
+
+   # Payment - Razorpay
+   RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxxxxxx
+   RAZORPAY_KEY_SECRET=your_live_razorpay_secret_key
+   RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+
+   # AWS S3 (Optional)
+   AWS_ACCESS_KEY_ID=your_access_key
+   AWS_SECRET_ACCESS_KEY=your_secret_key
+   AWS_S3_BUCKET=earth-to-orbit-production
+   AWS_REGION=ap-south-1
+
+   # Company
+   COMPANY_NAME=Earth To Orbit
+   COMPANY_EMAIL=contact@earth-to-orbit.com
+   SUPPORT_EMAIL=support@earth-to-orbit.com
+   COMPANY_WEBSITE=https://earth-to-orbit.com
+   COMPANY_PHONE=+91-80-XXXX-XXXX
+
+   # Developer
+   DEVELOPER_NAME=Ujjwal Sittu
+   DEVELOPER_COUNTRY=🇮🇳
+
+   # Features
+   ENABLE_EMAIL_NOTIFICATIONS=true
+   ENABLE_SMS_NOTIFICATIONS=false
+   ```
+
+4. **Deploy**
+   - Railway automatically builds and deploys
+   - Monitor deployment in logs
+   - Get your API URL: `https://your-service.up.railway.app`
+
+5. **Run Database Seed Script**
+
+   After initial deployment, seed the database:
+
+   **Option A: Using Railway CLI**
+   ```bash
+   # Install Railway CLI
+   npm i -g @railway/cli
+
+   # Login
+   railway login
+
+   # Link to project
+   railway link
+
+   # Run seed script
+   railway run pnpm seed
+   ```
+
+   **Option B: Using Railway Dashboard**
+   - Go to your API service
+   - Click "Settings" → "Deploy"
+   - Use "Run Command" feature: `pnpm seed`
+
+   **Option C: SSH into container**
+   ```bash
+   railway shell
+   pnpm seed
+   ```
+
+6. **Verify Deployment**
+   ```bash
+   curl https://your-api.up.railway.app/api/health
+   ```
+
+7. **Custom Domain (Optional)**
+   - Go to API Service → Settings
+   - Click "Generate Domain" or add custom domain
+   - For custom domain (e.g., `api.yourdomain.com`):
+     - Add CNAME record: `api.yourdomain.com → your-service.up.railway.app`
+
+**Configuration Files:**
+- `railway.json` - Railway deployment config
+- `nixpacks.toml` - Build configuration
+- `Procfile` - Process definitions (web, seed)
+
+**Cost:** Railway offers $5/month free credit. API + MongoDB typically costs $10-20/month.
+
+**See [`RAILWAY.md`](./RAILWAY.md) for detailed Railway deployment guide including:**
+- Database management
+- Seed script usage
+- Monitoring and logging
+- Troubleshooting
+- Production checklist
+
+---
+
+#### 🎯 Recommended Platform Combinations
+
+**Option 1: Vercel + Railway (Recommended)**
+- ✅ Frontend on Vercel (excellent Next.js support)
+- ✅ Backend on Railway (easy database management)
+- ✅ Auto-deploys on git push
+- ✅ Built-in SSL/CDN
+- **Cost:** ~$15-25/month
+
+**Option 2: Netlify + Railway**
+- ✅ Frontend on Netlify (alternative to Vercel)
+- ✅ Backend on Railway
+- ✅ Similar features to Option 1
+- **Cost:** ~$15-25/month
+
+**Option 3: All-in-One Railway**
+- ✅ Both frontend and backend on Railway
+- ✅ Simpler management, single platform
+- ✅ Unified billing
+- **Cost:** ~$20-30/month
+
+---
+
+#### 📋 Platform Comparison
+
+| Feature | Vercel | Netlify | Railway |
+|---------|--------|---------|---------|
+| **Best For** | Next.js Frontend | Static Sites / Next.js | Backend APIs / Full-stack |
+| **Free Tier** | Yes (Generous) | Yes | $5/month credit |
+| **Auto Scaling** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Custom Domains** | ✅ Free SSL | ✅ Free SSL | ✅ Free SSL |
+| **Database** | ❌ No | ❌ No | ✅ Built-in MongoDB |
+| **Build Minutes** | Unlimited | 300/month | Unlimited |
+| **Bandwidth** | 100GB/month | 100GB/month | Unlimited |
+| **Deploy Time** | ~1-2 min | ~2-3 min | ~3-5 min |
+| **Logs Retention** | 1 day (free) | 1 day (free) | 7 days |
+| **Best Docs** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+
+---
+
+#### 🔐 Platform Security Best Practices
+
+**For All Platforms:**
+- ✅ Use environment variables (never commit secrets)
+- ✅ Enable automatic HTTPS/SSL (enabled by default)
+- ✅ Set up 2FA for platform accounts
+- ✅ Use strong, unique JWT secrets (64+ characters)
+- ✅ Rotate API keys regularly
+- ✅ Monitor deployment logs for errors
+- ✅ Set up status page / uptime monitoring
+
+**Railway Specific:**
+- ✅ Use Railway's "Lock Service" for production
+- ✅ Enable MongoDB authentication
+- ✅ Set up database backups
+- ✅ Use Railway's private networking for DB connections
+
+**Vercel/Netlify Specific:**
+- ✅ Use environment variable encryption
+- ✅ Enable branch previews for testing
+- ✅ Set up deployment protection for production
+- ✅ Configure security headers (included in configs)
 
 ## Post-Deployment
 
