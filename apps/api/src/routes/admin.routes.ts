@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import Request, { RequestStatus } from '../models/Request';
 import User from '../models/User';
@@ -15,7 +16,7 @@ import { verifyBankTransferPayment } from '../services/payment.service';
 import { sendRequestApprovedEmail, sendRequestRejectedEmail } from '../services/email.service';
 import logger from '../utils/logger';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // All routes require platform admin authentication
 router.use(authenticate, isPlatformAdmin);

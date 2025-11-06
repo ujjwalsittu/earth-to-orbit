@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import User, { UserRole } from '../models/User';
@@ -12,7 +13,7 @@ import { authLimiter } from '../middleware/rate-limit.middleware';
 import { sendRegistrationEmail } from '../services/email.service';
 import logger from '../utils/logger';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // Validation schemas
 const registerSchema = z.object({

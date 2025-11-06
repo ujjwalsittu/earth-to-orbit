@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import Payment from '../models/Payment';
 import Invoice, { InvoiceStatus } from '../models/Invoice';
@@ -18,7 +19,7 @@ import { markInvoiceAsPaid } from '../services/billing.service';
 import { sendPaymentReceivedEmail } from '../services/email.service';
 import logger from '../utils/logger';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);

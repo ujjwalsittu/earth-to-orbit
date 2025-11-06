@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import asyncHandler from '../utils/async-handler';
 import ApiError from '../utils/api-error';
@@ -7,7 +8,7 @@ import { validate } from '../middleware/validation.middleware';
 import { optionalAuthenticate } from '../middleware/auth.middleware';
 import { getAvailability } from '../services/scheduling.service';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // Apply optional authentication
 router.use(optionalAuthenticate);

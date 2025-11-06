@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import Request, { RequestStatus } from '../models/Request';
 import Lab from '../models/Lab';
@@ -14,7 +15,7 @@ import { generateRequestNumber } from '../utils/generate-number';
 import { checkBookingConflicts, calculateDays, validateBookingDates } from '../services/scheduling.service';
 import logger from '../utils/logger';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);

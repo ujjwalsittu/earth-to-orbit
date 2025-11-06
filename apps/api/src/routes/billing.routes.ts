@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import Invoice from '../models/Invoice';
 import { authenticate } from '../middleware/auth.middleware';
 import { UserRole } from '../models/User';
@@ -6,7 +7,7 @@ import asyncHandler from '../utils/async-handler';
 import ApiError from '../utils/api-error';
 import { sendSuccess, sendPaginatedSuccess } from '../utils/response';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);
