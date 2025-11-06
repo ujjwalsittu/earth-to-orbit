@@ -1048,7 +1048,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 border-t border-blue-900/20 pt-8 text-center text-sm text-gray-400">
-            © {new Date().getFullYear()} {config.company.name}. All rights reserved.
+            © {new Date().getFullYear()} {config.company.name} | Made with ❤️ in {config.developer.country} By {config.developer.name}
           </div>
         </div>
       </footer>

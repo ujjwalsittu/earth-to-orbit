@@ -17,6 +17,12 @@ export const config = {
     phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || '+91-80-XXXX-XXXX',
   },
 
+  // Developer Attribution
+  developer: {
+    name: process.env.NEXT_PUBLIC_DEVELOPER_NAME || 'Ujjwal Sittu',
+    country: process.env.NEXT_PUBLIC_DEVELOPER_COUNTRY || '🇮🇳',
+  },
+
   // Payment
   razorpay: {
     keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
