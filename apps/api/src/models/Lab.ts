@@ -3,12 +3,15 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface ILab extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
+  code: string; // Unique code like "TVAC-001"
   category: mongoose.Types.ObjectId;
   site: mongoose.Types.ObjectId;
   description: string;
   specifications: Map<string, string>;
   images?: string[];
-  capacity?: {
+
+  // Capacity and technical specs
+  capacity: {
     maxPayloadSize?: string;
     maxPayloadWeight?: string;
     temperatureRange?: string;
@@ -16,13 +19,39 @@ export interface ILab extends Document {
     frequency?: string;
     [key: string]: string | undefined;
   };
-  pricePerDay: number;
-  pricePerWeek: number;
-  pricePerMonth: number;
-  currency: string;
+
+  // Time-based pricing (per hour/minute)
+  ratePerHour: number; // INR per hour
+  ratePerMinute?: number; // Optional minute-level pricing
+
+  // Slot configuration
+  slotGranularityMinutes: number; // 15, 30, or 60 minutes
+
+  // Operating hours
+  operatingWindow: {
+    start: string; // "09:00"
+    end: string; // "18:00"
+  };
+
+  // Timezone for this site
+  timezone: string; // "Asia/Kolkata"
+
+  // Capacity management
+  capacityUnits: number; // 1 = exclusive booking, >1 = can be shared
+
+  // Maintenance windows
+  maintenanceWindows?: Array<{
+    start: Date;
+    end: Date;
+    reason?: string;
+    recurring?: boolean;
+  }>;
+
+  // Availability
   availability: boolean;
   leadTimeDays: number;
   isActive: boolean;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +62,13 @@ const LabSchema = new Schema<ILab>(
       type: String,
       required: true,
       trim: true,
+    },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      uppercase: true,
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -62,25 +98,52 @@ const LabSchema = new Schema<ILab>(
     capacity: {
       type: Schema.Types.Mixed,
     },
-    pricePerDay: {
+    ratePerHour: {
       type: Number,
       required: true,
       min: 0,
     },
-    pricePerWeek: {
+    ratePerMinute: {
       type: Number,
-      required: true,
       min: 0,
     },
-    pricePerMonth: {
+    slotGranularityMinutes: {
       type: Number,
       required: true,
-      min: 0,
+      enum: [15, 30, 60],
+      default: 60,
     },
-    currency: {
+    operatingWindow: {
+      start: {
+        type: String,
+        required: true,
+        default: '09:00',
+      },
+      end: {
+        type: String,
+        required: true,
+        default: '18:00',
+      },
+    },
+    timezone: {
       type: String,
-      default: 'INR',
+      required: true,
+      default: 'Asia/Kolkata',
     },
+    capacityUnits: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
+    maintenanceWindows: [
+      {
+        start: { type: Date, required: true },
+        end: { type: Date, required: true },
+        reason: String,
+        recurring: { type: Boolean, default: false },
+      },
+    ],
     availability: {
       type: Boolean,
       default: true,
@@ -100,10 +163,17 @@ const LabSchema = new Schema<ILab>(
   }
 );
 
-// Index for performance
+// Indexes for performance
+LabSchema.index({ code: 1 });
 LabSchema.index({ category: 1, site: 1 });
 LabSchema.index({ availability: 1, isActive: 1 });
+LabSchema.index({ site: 1, isActive: 1 });
 LabSchema.index({ name: 'text', description: 'text' });
+
+// Virtual for full code with site
+LabSchema.virtual('fullCode').get(function () {
+  return `${this.site}-${this.code}`;
+});
 
 const Lab: Model<ILab> = mongoose.model<ILab>('Lab', LabSchema);
 

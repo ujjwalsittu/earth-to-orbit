@@ -6,22 +6,41 @@ export enum RequestStatus {
   UNDER_REVIEW = 'under_review',
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  SCHEDULED = 'scheduled',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  INVOICED = 'invoiced',
+  PAID = 'paid',
 }
 
-export interface IRequestItem {
-  itemType: 'lab' | 'component';
-  // Internal model name used for population
-  itemModel: 'Lab' | 'Component';
-  item: mongoose.Types.ObjectId;
-  quantity: number;
-  startDate: Date;
-  endDate: Date;
-  days: number;
-  pricePerDay: number;
+// Machinery/Lab booking item
+export interface IMachineryItem {
+  lab: mongoose.Types.ObjectId;
+  site: mongoose.Types.ObjectId;
+  startTime: Date; // Full ISO datetime with time
+  endTime: Date; // Full ISO datetime with time
+  durationHours: number;
+  rateSnapshot: number; // Rate per hour at booking time
   subtotal: number;
+  notes?: string;
+}
+
+// Component item
+export interface IComponentItem {
+  component: mongoose.Types.ObjectId;
+  quantity: number;
+  priceSnapshot: number; // Unit price at booking time
+  subtotal: number;
+}
+
+// Assistance/Staff item
+export interface IAssistanceItem {
+  staff?: mongoose.Types.ObjectId; // Assigned later by admin
+  hours: number;
+  rateSnapshot?: number; // Rate per hour (can be set later)
+  subtotal: number;
+  notes?: string;
 }
 
 export interface IRequest extends Document {
@@ -31,31 +50,63 @@ export interface IRequest extends Document {
   description: string;
   organization: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
-  items: IRequestItem[];
-  status: RequestStatus;
-  subtotal: number;
-  tax: number;
-  total: number;
-  currency: string;
-  documents?: string[];
+
+  // Separate arrays for different item types
+  machineryItems: IMachineryItem[];
+  components: IComponentItem[];
+  assistanceItems: IAssistanceItem[];
+
+  // Project details
   projectDetails?: {
     projectName?: string;
     projectDescription?: string;
     missionObjective?: string;
   };
+
+  // Status and workflow
+  status: RequestStatus;
+
+  // Pricing
+  machinerySubtotal: number;
+  componentsSubtotal: number;
+  assistanceSubtotal: number;
+  subtotal: number;
+  taxRate: number; // Percentage (e.g., 18 for 18%)
+  tax: number;
+  total: number;
+  currency: string;
+
+  // Documents
+  documents?: string[];
+
+  // Review and approval
   reviewedBy?: mongoose.Types.ObjectId;
   reviewedAt?: Date;
   approvedBy?: mongoose.Types.ObjectId;
   approvedAt?: Date;
   rejectionReason?: string;
+
+  // Extension requests
   extensionRequests?: Array<{
-    requestedEndDate: Date;
+    requestedHours: number;
+    requestedEndTime: Date;
     reason: string;
     status: 'pending' | 'approved' | 'rejected';
+    alternatives?: Array<{
+      startTime: Date;
+      endTime: Date;
+      confidence: 'high' | 'medium' | 'low';
+    }>;
+    priceDelta?: number;
     requestedAt: Date;
     respondedAt?: Date;
+    respondedBy?: mongoose.Types.ObjectId;
   }>;
+
+  // Additional notes
   notes?: string;
+  adminNotes?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -89,22 +140,53 @@ const RequestSchema = new Schema<IRequest>(
       required: true,
       index: true,
     },
-    items: [
+
+    // Machinery items (labs/equipment)
+    machineryItems: [
       {
-        itemType: {
-          type: String,
-          enum: ['lab', 'component'],
-          required: true,
-        },
-        // Store corresponding Mongoose model name for dynamic population
-        itemModel: {
-          type: String,
-          enum: ['Lab', 'Component'],
-          required: true,
-        },
-        item: {
+        lab: {
           type: Schema.Types.ObjectId,
-          refPath: 'items.itemModel',
+          ref: 'Lab',
+          required: true,
+        },
+        site: {
+          type: Schema.Types.ObjectId,
+          ref: 'Site',
+          required: true,
+        },
+        startTime: {
+          type: Date,
+          required: true,
+        },
+        endTime: {
+          type: Date,
+          required: true,
+        },
+        durationHours: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        rateSnapshot: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        subtotal: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        notes: String,
+      },
+    ],
+
+    // Component items
+    components: [
+      {
+        component: {
+          type: Schema.Types.ObjectId,
+          ref: 'Component',
           required: true,
         },
         quantity: {
@@ -112,20 +194,7 @@ const RequestSchema = new Schema<IRequest>(
           required: true,
           min: 1,
         },
-        startDate: {
-          type: Date,
-          required: true,
-        },
-        endDate: {
-          type: Date,
-          required: true,
-        },
-        days: {
-          type: Number,
-          required: true,
-          min: 1,
-        },
-        pricePerDay: {
+        priceSnapshot: {
           type: Number,
           required: true,
           min: 0,
@@ -137,6 +206,40 @@ const RequestSchema = new Schema<IRequest>(
         },
       },
     ],
+
+    // Assistance items
+    assistanceItems: [
+      {
+        staff: {
+          type: Schema.Types.ObjectId,
+          ref: 'Staff',
+        },
+        hours: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        rateSnapshot: {
+          type: Number,
+          min: 0,
+        },
+        subtotal: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        notes: String,
+      },
+    ],
+
+    // Project details
+    projectDetails: {
+      projectName: String,
+      projectDescription: String,
+      missionObjective: String,
+    },
+
+    // Status
     status: {
       type: String,
       enum: Object.values(RequestStatus),
@@ -144,10 +247,35 @@ const RequestSchema = new Schema<IRequest>(
       default: RequestStatus.DRAFT,
       index: true,
     },
+
+    // Pricing breakdown
+    machinerySubtotal: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    componentsSubtotal: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    assistanceSubtotal: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
     subtotal: {
       type: Number,
       required: true,
       min: 0,
+    },
+    taxRate: {
+      type: Number,
+      required: true,
+      default: 18, // 18% GST
     },
     tax: {
       type: Number,
@@ -164,16 +292,15 @@ const RequestSchema = new Schema<IRequest>(
       type: String,
       default: 'INR',
     },
+
+    // Documents
     documents: [
       {
         type: String,
       },
     ],
-    projectDetails: {
-      projectName: String,
-      projectDescription: String,
-      missionObjective: String,
-    },
+
+    // Review
     reviewedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -191,20 +318,43 @@ const RequestSchema = new Schema<IRequest>(
     rejectionReason: {
       type: String,
     },
+
+    // Extensions
     extensionRequests: [
       {
-        requestedEndDate: { type: Date, required: true },
+        requestedHours: { type: Number, required: true },
+        requestedEndTime: { type: Date, required: true },
         reason: { type: String, required: true },
         status: {
           type: String,
           enum: ['pending', 'approved', 'rejected'],
           default: 'pending',
         },
+        alternatives: [
+          {
+            startTime: Date,
+            endTime: Date,
+            confidence: {
+              type: String,
+              enum: ['high', 'medium', 'low'],
+            },
+          },
+        ],
+        priceDelta: Number,
         requestedAt: { type: Date, default: Date.now },
         respondedAt: Date,
+        respondedBy: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
       },
     ],
+
+    // Notes
     notes: {
+      type: String,
+    },
+    adminNotes: {
       type: String,
     },
   },
@@ -213,27 +363,13 @@ const RequestSchema = new Schema<IRequest>(
   }
 );
 
-// Index for performance
+// Indexes for performance
 RequestSchema.index({ organization: 1, status: 1 });
 RequestSchema.index({ user: 1, status: 1 });
 RequestSchema.index({ requestNumber: 1 });
 RequestSchema.index({ createdAt: -1 });
-
-// Ensure itemModel is derived from itemType before validation
-RequestSchema.pre('validate', function (next) {
-  try {
-    if (Array.isArray((this as any).items)) {
-      (this as any).items = (this as any).items.map((it: any) => {
-        // Derive model name from itemType
-        const itemModel = it.itemType === 'lab' ? 'Lab' : 'Component';
-        return { ...it, itemModel };
-      });
-    }
-    next();
-  } catch (err) {
-    next(err as any);
-  }
-});
+RequestSchema.index({ 'machineryItems.lab': 1, 'machineryItems.startTime': 1 });
+RequestSchema.index({ 'machineryItems.site': 1, status: 1 });
 
 const Request: Model<IRequest> = mongoose.model<IRequest>('Request', RequestSchema);
 

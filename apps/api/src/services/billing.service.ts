@@ -21,13 +21,46 @@ export const generateInvoice = async (request: IRequest): Promise<IInvoice> => {
 
     const invoiceNumber = generateInvoiceNumber(sequenceNumber);
 
-    // Prepare invoice items from request items
-    const items = request.items.map((item) => ({
-      description: `${item.itemType === 'lab' ? 'Lab' : 'Component'} - ${item.quantity} unit(s) for ${item.days} day(s)`,
-      quantity: item.quantity * item.days,
-      unitPrice: item.pricePerDay,
-      amount: item.subtotal,
-    }));
+    // Prepare invoice items from request
+    const items = [];
+
+    // Add machinery items
+    if (request.machineryItems && request.machineryItems.length > 0) {
+      for (const item of request.machineryItems) {
+        const labDoc = await require('../models/Lab').default.findById(item.lab);
+        items.push({
+          description: `Lab: ${labDoc?.name || 'Unknown'} - ${item.durationHours} hour(s)`,
+          quantity: item.durationHours,
+          unitPrice: item.rateSnapshot,
+          amount: item.subtotal,
+        });
+      }
+    }
+
+    // Add component items
+    if (request.components && request.components.length > 0) {
+      for (const item of request.components) {
+        const componentDoc = await require('../models/Component').default.findById(item.component);
+        items.push({
+          description: `Component: ${componentDoc?.name || 'Unknown'} - ${item.quantity} unit(s)`,
+          quantity: item.quantity,
+          unitPrice: item.priceSnapshot,
+          amount: item.subtotal,
+        });
+      }
+    }
+
+    // Add assistance items
+    if (request.assistanceItems && request.assistanceItems.length > 0) {
+      for (const item of request.assistanceItems) {
+        items.push({
+          description: `Technical Assistance - ${item.hours} hour(s)`,
+          quantity: item.hours,
+          unitPrice: item.rateSnapshot || 0,
+          amount: item.subtotal,
+        });
+      }
+    }
 
     // Calculate tax (18% GST)
     const taxRate = 18;

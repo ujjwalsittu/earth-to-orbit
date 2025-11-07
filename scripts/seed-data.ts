@@ -159,6 +159,7 @@ const seedDatabase = async () => {
     const labs = await Lab.insertMany([
       {
         name: "TVAC Chamber (Large)",
+        code: "TVAC-001",
         category: categories[0]._id,
         site: sites[0]._id,
         description:
@@ -176,14 +177,20 @@ const seedDatabase = async () => {
           temperatureRange: "-180°C to +150°C",
           vacuumLevel: "10⁻⁶ Torr",
         },
-        pricePerDay: 150000,
-        pricePerWeek: 900000,
-        pricePerMonth: 3000000,
+        ratePerHour: 15000, // INR per hour
+        slotGranularityMinutes: 60, // 1-hour slots
+        operatingWindow: {
+          start: "09:00",
+          end: "18:00",
+        },
+        timezone: "Asia/Kolkata",
+        capacityUnits: 1, // Exclusive use
         availability: true,
         leadTimeDays: 14,
       },
       {
         name: "Vibration Test System",
+        code: "VIB-001",
         category: categories[0]._id,
         site: sites[0]._id,
         description:
@@ -199,14 +206,20 @@ const seedDatabase = async () => {
           maxPayloadWeight: "300 kg",
           frequency: "5 Hz - 2000 Hz",
         },
-        pricePerDay: 80000,
-        pricePerWeek: 480000,
-        pricePerMonth: 1600000,
+        ratePerHour: 8000, // INR per hour
+        slotGranularityMinutes: 30, // 30-minute slots
+        operatingWindow: {
+          start: "09:00",
+          end: "18:00",
+        },
+        timezone: "Asia/Kolkata",
+        capacityUnits: 1,
         availability: true,
         leadTimeDays: 7,
       },
       {
         name: "EMI/EMC Test Chamber",
+        code: "EMC-001",
         category: categories[0]._id,
         site: sites[1]._id,
         description:
@@ -220,14 +233,20 @@ const seedDatabase = async () => {
         capacity: {
           maxPayloadSize: "5m x 3m x 3m",
         },
-        pricePerDay: 100000,
-        pricePerWeek: 600000,
-        pricePerMonth: 2000000,
+        ratePerHour: 10000, // INR per hour
+        slotGranularityMinutes: 60,
+        operatingWindow: {
+          start: "09:00",
+          end: "18:00",
+        },
+        timezone: "Asia/Kolkata",
+        capacityUnits: 1,
         availability: true,
         leadTimeDays: 10,
       },
       {
         name: "Shock Test Facility",
+        code: "SHOCK-001",
         category: categories[0]._id,
         site: sites[1]._id,
         description:
@@ -240,14 +259,20 @@ const seedDatabase = async () => {
         capacity: {
           maxPayloadWeight: "100 kg",
         },
-        pricePerDay: 60000,
-        pricePerWeek: 360000,
-        pricePerMonth: 1200000,
+        ratePerHour: 6000, // INR per hour
+        slotGranularityMinutes: 30,
+        operatingWindow: {
+          start: "09:00",
+          end: "18:00",
+        },
+        timezone: "Asia/Kolkata",
+        capacityUnits: 1,
         availability: true,
         leadTimeDays: 7,
       },
       {
         name: "Clean Room (Class 100)",
+        code: "CR-001",
         category: categories[1]._id,
         site: sites[0]._id,
         description:
@@ -262,9 +287,14 @@ const seedDatabase = async () => {
         capacity: {
           maxPayloadSize: "10m x 10m floor space",
         },
-        pricePerDay: 40000,
-        pricePerWeek: 240000,
-        pricePerMonth: 800000,
+        ratePerHour: 4000, // INR per hour
+        slotGranularityMinutes: 60,
+        operatingWindow: {
+          start: "09:00",
+          end: "18:00",
+        },
+        timezone: "Asia/Kolkata",
+        capacityUnits: 1,
         availability: true,
         leadTimeDays: 5,
       },
@@ -275,9 +305,9 @@ const seedDatabase = async () => {
     console.log("⚙️  Creating components...");
     const components = await Component.insertMany([
       {
+        sku: "ST-JO-ASTRO15",
         name: "Star Tracker",
         category: categories[2]._id,
-        site: sites[0]._id,
         description:
           "High-precision star tracker for attitude determination. Provides sub-arcsecond accuracy for precise satellite orientation.",
         specifications: new Map([
@@ -288,17 +318,19 @@ const seedDatabase = async () => {
           ["Power Consumption", "3 W"],
         ]),
         manufacturer: "Jena-Optronik",
-        model: "ASTRO-15",
-        pricePerDay: 5000,
-        pricePerWeek: 30000,
-        pricePerMonth: 100000,
-        quantity: 5,
+        partNumber: "ASTRO-15",
+        unitPrice: 150000, // INR per unit
+        rentalRatePerDay: 5000, // INR per day
+        stockQuantity: 5,
         availableQuantity: 5,
+        leadTimeDays: 30,
+        minimumOrderQuantity: 1,
+        hsn: "90138000",
       },
       {
+        sku: "RW-HT-RW50",
         name: "Reaction Wheel",
         category: categories[2]._id,
-        site: sites[0]._id,
         description:
           "Precision reaction wheel for three-axis attitude control. Provides fine pointing control and momentum storage.",
         specifications: new Map([
@@ -309,17 +341,19 @@ const seedDatabase = async () => {
           ["Power", "10 W (nominal)"],
         ]),
         manufacturer: "Hyperion Technologies",
-        model: "RW-50",
-        pricePerDay: 8000,
-        pricePerWeek: 48000,
-        pricePerMonth: 160000,
-        quantity: 10,
+        partNumber: "RW-50",
+        unitPrice: 250000, // INR per unit
+        rentalRatePerDay: 8000,
+        stockQuantity: 10,
         availableQuantity: 10,
+        leadTimeDays: 45,
+        minimumOrderQuantity: 1,
+        hsn: "85015100",
       },
       {
+        sku: "SP-SL-XTJP",
         name: "Solar Panel (100W)",
         category: categories[3]._id,
-        site: sites[0]._id,
         description:
           "Triple-junction GaAs solar panel with 30% efficiency. Radiation hardened for 15-year mission life.",
         specifications: new Map([
@@ -330,17 +364,19 @@ const seedDatabase = async () => {
           ["Operating Temperature", "-100°C to +120°C"],
         ]),
         manufacturer: "Spectrolab",
-        model: "XTJ Prime",
-        pricePerDay: 3000,
-        pricePerWeek: 18000,
-        pricePerMonth: 60000,
-        quantity: 20,
+        partNumber: "XTJ-PRIME",
+        unitPrice: 180000, // INR per unit
+        rentalRatePerDay: 3000,
+        stockQuantity: 20,
         availableQuantity: 20,
+        leadTimeDays: 60,
+        minimumOrderQuantity: 2,
+        hsn: "85414000",
       },
       {
+        sku: "TX-IS-TRXVUS",
         name: "S-Band Transceiver",
         category: categories[4]._id,
-        site: sites[1]._id,
         description:
           "S-Band transceiver for telemetry, tracking, and command. Compatible with major ground station networks worldwide.",
         specifications: new Map([
@@ -351,17 +387,19 @@ const seedDatabase = async () => {
           ["Mass", "1.2 kg"],
         ]),
         manufacturer: "ISIS",
-        model: "TRXVU-S",
-        pricePerDay: 6000,
-        pricePerWeek: 36000,
-        pricePerMonth: 120000,
-        quantity: 8,
+        partNumber: "TRXVU-S",
+        unitPrice: 320000, // INR per unit
+        rentalRatePerDay: 6000,
+        stockQuantity: 8,
         availableQuantity: 8,
+        leadTimeDays: 90,
+        minimumOrderQuantity: 1,
+        hsn: "85176290",
       },
       {
+        sku: "BAT-SF-VES180",
         name: "Li-Ion Battery (40Ah)",
         category: categories[3]._id,
-        site: sites[0]._id,
         description:
           "High-capacity lithium-ion battery for satellite power storage. Optimized for deep discharge cycles and long mission life.",
         specifications: new Map([
@@ -372,17 +410,19 @@ const seedDatabase = async () => {
           ["Cycle Life", "> 40,000 cycles"],
         ]),
         manufacturer: "Saft",
-        model: "VES-180",
-        pricePerDay: 4000,
-        pricePerWeek: 24000,
-        pricePerMonth: 80000,
-        quantity: 15,
+        partNumber: "VES-180",
+        unitPrice: 220000, // INR per unit
+        rentalRatePerDay: 4000,
+        stockQuantity: 15,
         availableQuantity: 15,
+        leadTimeDays: 30,
+        minimumOrderQuantity: 1,
+        hsn: "85076000",
       },
       {
+        sku: "GPS-NV-OEM719",
         name: "GPS Receiver",
         category: categories[2]._id,
-        site: sites[1]._id,
         description:
           "Space-qualified GPS receiver for orbit determination and time synchronization.",
         specifications: new Map([
@@ -393,12 +433,14 @@ const seedDatabase = async () => {
           ["Mass", "300 g"],
         ]),
         manufacturer: "NovAtel",
-        model: "OEM719",
-        pricePerDay: 3500,
-        pricePerWeek: 21000,
-        pricePerMonth: 70000,
-        quantity: 12,
+        partNumber: "OEM719",
+        unitPrice: 160000, // INR per unit
+        rentalRatePerDay: 3500,
+        stockQuantity: 12,
         availableQuantity: 12,
+        leadTimeDays: 45,
+        minimumOrderQuantity: 1,
+        hsn: "85269110",
       },
     ]);
     console.log(`✅ Created ${components.length} components\n`);
@@ -415,6 +457,7 @@ const seedDatabase = async () => {
         role: "Test Engineer",
         department: "Environmental Testing",
         expertise: ["TVAC Testing", "Vibration Testing", "Test Planning"],
+        ratePerHour: 800, // INR per hour
       },
       {
         firstName: "Priya",
@@ -429,6 +472,7 @@ const seedDatabase = async () => {
           "Cleanroom Operations",
           "Quality Control",
         ],
+        ratePerHour: 600, // INR per hour
       },
       {
         firstName: "Arjun",
@@ -439,6 +483,7 @@ const seedDatabase = async () => {
         role: "EMC Test Specialist",
         department: "EMI/EMC Testing",
         expertise: ["EMC Testing", "MIL-STD-461", "Test Automation"],
+        ratePerHour: 750, // INR per hour
       },
       {
         firstName: "Anjali",
@@ -449,6 +494,7 @@ const seedDatabase = async () => {
         role: "Mechanical Test Engineer",
         department: "Mechanical Testing",
         expertise: ["Shock Testing", "Modal Analysis", "Structural Testing"],
+        ratePerHour: 700, // INR per hour
       },
     ]);
     console.log(`✅ Created ${staff.length} staff members\n`);
