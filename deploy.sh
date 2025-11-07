@@ -72,10 +72,11 @@ validate_email() {
     fi
 }
 
-# Validate domain format
+# Validate domain format (supports subdomains)
 validate_domain() {
     local domain=$1
-    if [[ $domain =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$ ]]; then
+    # Matches domain.tld, subdomain.domain.tld, api.subdomain.domain.tld, etc.
+    if [[ $domain =~ ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$ ]]; then
         return 0
     else
         return 1
@@ -207,17 +208,17 @@ fi
 
 log_section "STEP 3: Domain Configuration"
 
-echo "Configure your domain names:"
+echo "Configure your domain names (supports subdomains):"
 echo ""
 
 # Web Domain
 while true; do
-    read -p "Web Frontend Domain (e.g., myapp.com): " WEB_DOMAIN
+    read -p "Web Frontend Domain (e.g., myapp.com, app.myapp.com, www.myapp.com): " WEB_DOMAIN
     if validate_domain "$WEB_DOMAIN"; then
         log_success "Web domain: $WEB_DOMAIN"
         break
     else
-        log_error "Invalid domain format. Please enter a valid domain."
+        log_error "Invalid domain format. Please enter a valid domain or subdomain."
     fi
 done
 
@@ -225,12 +226,12 @@ echo ""
 
 # API Domain
 while true; do
-    read -p "API Backend Domain (e.g., api.myapp.com): " API_DOMAIN
+    read -p "API Backend Domain (e.g., api.myapp.com, backend.myapp.com): " API_DOMAIN
     if validate_domain "$API_DOMAIN"; then
         log_success "API domain: $API_DOMAIN"
         break
     else
-        log_error "Invalid domain format. Please enter a valid domain."
+        log_error "Invalid domain format. Please enter a valid domain or subdomain."
     fi
 done
 
