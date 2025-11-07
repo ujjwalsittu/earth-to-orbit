@@ -7,7 +7,7 @@
 # - Remote SSH deployment support
 # - Docker installation
 # - SSL certificate setup with Let's Encrypt
-# - Environment configuration
+# - Comprehensive environment configuration
 # - Service orchestration
 # =============================================================================
 
@@ -76,6 +76,16 @@ validate_email() {
 validate_domain() {
     local domain=$1
     if [[ $domain =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Validate URL format
+validate_url() {
+    local url=$1
+    if [[ $url =~ ^https?:// ]]; then
         return 0
     else
         return 1
@@ -256,6 +266,9 @@ echo ""
 read -p "MongoDB Username [admin]: " MONGODB_USER
 MONGODB_USER=${MONGODB_USER:-admin}
 
+read -p "MongoDB Database Name [earth-to-orbit]: " MONGODB_DATABASE
+MONGODB_DATABASE=${MONGODB_DATABASE:-earth-to-orbit}
+
 while true; do
     read -sp "MongoDB Password: " MONGODB_PASSWORD
     echo ""
@@ -275,40 +288,106 @@ while true; do
 done
 
 # =============================================================================
-# Email Service Configuration (SMTP)
+# Email Service Configuration
 # =============================================================================
 
-log_section "STEP 6: Email Service Configuration (SMTP)"
+log_section "STEP 6: Email Service Configuration"
 
-echo "Configure SMTP for sending emails (notifications, password resets, etc.):"
+echo "Choose email service for sending notifications:"
+echo "  1) SMTP (Gmail, SendGrid, AWS SES, Mailgun, etc.)"
+echo "  2) Resend API (Modern email API)"
+echo ""
+read -p "Enter your choice [1-2]: " EMAIL_CHOICE
+
+if [ "$EMAIL_CHOICE" = "1" ]; then
+    EMAIL_SERVICE="smtp"
+    log_success "Selected: SMTP"
+    echo ""
+
+    read -p "SMTP Host (e.g., smtp.gmail.com): " SMTP_HOST
+    read -p "SMTP Port [587]: " SMTP_PORT
+    SMTP_PORT=${SMTP_PORT:-587}
+
+    while true; do
+        read -p "SMTP Username/Email: " SMTP_USER
+        if validate_email "$SMTP_USER"; then
+            break
+        else
+            log_error "Invalid email format for SMTP user"
+        fi
+    done
+
+    read -sp "SMTP Password/App Password: " SMTP_PASSWORD
+    echo ""
+
+    read -p "SMTP From Name [Earth To Orbit]: " SMTP_FROM_NAME
+    SMTP_FROM_NAME=${SMTP_FROM_NAME:-Earth To Orbit}
+
+    read -p "SMTP From Email [$SMTP_USER]: " SMTP_FROM_EMAIL
+    SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-$SMTP_USER}
+
+    log_success "SMTP configuration complete"
+elif [ "$EMAIL_CHOICE" = "2" ]; then
+    EMAIL_SERVICE="resend"
+    log_success "Selected: Resend API"
+    echo ""
+
+    log_info "Get your Resend API key from: https://resend.com/api-keys"
+    read -sp "Resend API Key: " RESEND_API_KEY
+    echo ""
+
+    log_success "Resend configuration complete"
+else
+    log_error "Invalid choice. Exiting."
+    exit 1
+fi
+
+# =============================================================================
+# Company/Branding Configuration
+# =============================================================================
+
+log_section "STEP 7: Company/Branding Information"
+
+echo "Configure company information for emails and branding:"
 echo ""
 
-read -p "SMTP Host (e.g., smtp.gmail.com): " SMTP_HOST
-read -p "SMTP Port [587]: " SMTP_PORT
-SMTP_PORT=${SMTP_PORT:-587}
+read -p "Company Name [Earth To Orbit]: " COMPANY_NAME
+COMPANY_NAME=${COMPANY_NAME:-Earth To Orbit}
 
 while true; do
-    read -p "SMTP Username/Email: " SMTP_USER
-    if validate_email "$SMTP_USER"; then
+    read -p "Company Email [contact@$WEB_DOMAIN]: " COMPANY_EMAIL
+    COMPANY_EMAIL=${COMPANY_EMAIL:-contact@$WEB_DOMAIN}
+    if validate_email "$COMPANY_EMAIL"; then
         break
     else
-        log_error "Invalid email format for SMTP user"
+        log_error "Invalid email format"
     fi
 done
 
-read -sp "SMTP Password: " SMTP_PASSWORD
-echo ""
+while true; do
+    read -p "Support Email [support@$WEB_DOMAIN]: " SUPPORT_EMAIL
+    SUPPORT_EMAIL=${SUPPORT_EMAIL:-support@$WEB_DOMAIN}
+    if validate_email "$SUPPORT_EMAIL"; then
+        break
+    else
+        log_error "Invalid email format"
+    fi
+done
 
-read -p "SMTP From Name [Earth To Orbit]: " SMTP_FROM_NAME
-SMTP_FROM_NAME=${SMTP_FROM_NAME:-Earth To Orbit}
+read -p "Company Website [https://$WEB_DOMAIN]: " COMPANY_WEBSITE
+COMPANY_WEBSITE=${COMPANY_WEBSITE:-https://$WEB_DOMAIN}
 
-log_success "SMTP configuration complete"
+read -p "Company Phone: " COMPANY_PHONE
+
+read -p "Company Address: " COMPANY_ADDRESS
+
+log_success "Company information configured"
 
 # =============================================================================
 # Platform Admin Configuration
 # =============================================================================
 
-log_section "STEP 7: Platform Admin Account"
+log_section "STEP 8: Platform Admin Account"
 
 echo "Create the initial Platform Admin account:"
 echo "(This account will have full system access)"
@@ -347,10 +426,103 @@ while true; do
 done
 
 # =============================================================================
+# Optional: Payment Gateway Configuration
+# =============================================================================
+
+log_section "STEP 9: Payment Gateway (Optional)"
+
+echo "Configure Razorpay payment gateway (can be configured later):"
+echo ""
+
+read -p "Configure Razorpay now? [y/n]: " CONFIGURE_RAZORPAY
+
+if [[ $CONFIGURE_RAZORPAY =~ ^[Yy]$ ]]; then
+    log_info "Get your Razorpay credentials from: https://dashboard.razorpay.com/app/keys"
+    echo ""
+
+    read -p "Razorpay Key ID: " RAZORPAY_KEY_ID
+    read -sp "Razorpay Key Secret: " RAZORPAY_KEY_SECRET
+    echo ""
+
+    log_success "Razorpay configured"
+else
+    RAZORPAY_KEY_ID=""
+    RAZORPAY_KEY_SECRET=""
+    log_info "Razorpay skipped (can be configured later in .env file)"
+fi
+
+# =============================================================================
+# Optional: AWS S3 Configuration
+# =============================================================================
+
+log_section "STEP 10: AWS S3 Storage (Optional)"
+
+echo "Configure AWS S3 for file uploads (can be configured later):"
+echo ""
+
+read -p "Configure AWS S3 now? [y/n]: " CONFIGURE_AWS
+
+if [[ $CONFIGURE_AWS =~ ^[Yy]$ ]]; then
+    read -p "AWS Region [ap-south-1]: " AWS_REGION
+    AWS_REGION=${AWS_REGION:-ap-south-1}
+
+    read -p "AWS Access Key ID: " AWS_ACCESS_KEY_ID
+    read -sp "AWS Secret Access Key: " AWS_SECRET_ACCESS_KEY
+    echo ""
+
+    read -p "AWS S3 Bucket Name: " AWS_S3_BUCKET
+
+    log_success "AWS S3 configured"
+else
+    AWS_REGION="ap-south-1"
+    AWS_ACCESS_KEY_ID=""
+    AWS_SECRET_ACCESS_KEY=""
+    AWS_S3_BUCKET="earth-to-orbit-uploads"
+    log_info "AWS S3 skipped (can be configured later in .env file)"
+fi
+
+# =============================================================================
+# Optional: Demo Organization
+# =============================================================================
+
+log_section "STEP 11: Demo Organization (Optional)"
+
+echo "Create a demo organization for testing (optional):"
+echo ""
+
+read -p "Create demo organization? [y/n]: " CREATE_DEMO_ORG
+
+if [[ $CREATE_DEMO_ORG =~ ^[Yy]$ ]]; then
+    read -p "Demo Org Email [demo@example.com]: " DEMO_ORG_EMAIL
+    DEMO_ORG_EMAIL=${DEMO_ORG_EMAIL:-demo@example.com}
+
+    read -p "Demo Org Admin Email [admin@demo.com]: " DEMO_ORG_ADMIN_EMAIL
+    DEMO_ORG_ADMIN_EMAIL=${DEMO_ORG_ADMIN_EMAIL:-admin@demo.com}
+
+    read -sp "Demo Org Admin Password: " DEMO_ORG_ADMIN_PASSWORD
+    echo ""
+
+    read -p "Demo Org Member Email [member@demo.com]: " DEMO_ORG_MEMBER_EMAIL
+    DEMO_ORG_MEMBER_EMAIL=${DEMO_ORG_MEMBER_EMAIL:-member@demo.com}
+
+    read -sp "Demo Org Member Password: " DEMO_ORG_MEMBER_PASSWORD
+    echo ""
+
+    log_success "Demo organization configured"
+else
+    DEMO_ORG_EMAIL="demo@example.com"
+    DEMO_ORG_ADMIN_EMAIL="admin@demo.com"
+    DEMO_ORG_ADMIN_PASSWORD="Demo@123456"
+    DEMO_ORG_MEMBER_EMAIL="member@demo.com"
+    DEMO_ORG_MEMBER_PASSWORD="Demo@123456"
+    log_info "Demo organization skipped"
+fi
+
+# =============================================================================
 # JWT Secret Generation
 # =============================================================================
 
-log_section "STEP 8: Security Configuration"
+log_section "STEP 12: Security Configuration"
 
 log_info "Generating secure JWT secrets..."
 JWT_SECRET=$(generate_secret)
@@ -358,10 +530,10 @@ JWT_REFRESH_SECRET=$(generate_secret)
 log_success "JWT secrets generated"
 
 # =============================================================================
-# Optional Configuration
+# Additional Configuration
 # =============================================================================
 
-log_section "STEP 9: Optional Configuration"
+log_section "STEP 13: Additional Options"
 
 echo "Additional configuration options:"
 echo ""
@@ -396,20 +568,94 @@ ${CYAN}Domain Configuration:${NC}
 
 ${CYAN}Database:${NC}
   MongoDB User:       $MONGODB_USER
+  Database Name:      $MONGODB_DATABASE
   MongoDB Password:   ******* (hidden)
 
 ${CYAN}Email Service:${NC}
+EOF
+
+if [ "$EMAIL_SERVICE" = "smtp" ]; then
+cat << EOF
+  Service:            SMTP
   SMTP Host:          $SMTP_HOST:$SMTP_PORT
   SMTP User:          $SMTP_USER
   From Name:          $SMTP_FROM_NAME
+  From Email:         $SMTP_FROM_EMAIL
+EOF
+else
+cat << EOF
+  Service:            Resend API
+  API Key:            ******* (hidden)
+EOF
+fi
+
+cat << EOF
+
+${CYAN}Company Information:${NC}
+  Company Name:       $COMPANY_NAME
+  Company Email:      $COMPANY_EMAIL
+  Support Email:      $SUPPORT_EMAIL
+  Company Website:    $COMPANY_WEBSITE
+  Phone:              $COMPANY_PHONE
+  Address:            $COMPANY_ADDRESS
 
 ${CYAN}Platform Admin:${NC}
   Name:               $ADMIN_FIRST_NAME $ADMIN_LAST_NAME
   Email:              $ADMIN_EMAIL
   Phone:              $ADMIN_PHONE
 
+${CYAN}Payment Gateway:${NC}
+EOF
+
+if [ -n "$RAZORPAY_KEY_ID" ]; then
+cat << EOF
+  Razorpay:           Configured
+  Key ID:             $RAZORPAY_KEY_ID
+EOF
+else
+cat << EOF
+  Razorpay:           Not configured
+EOF
+fi
+
+cat << EOF
+
+${CYAN}AWS S3 Storage:${NC}
+EOF
+
+if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+cat << EOF
+  AWS S3:             Configured
+  Region:             $AWS_REGION
+  Bucket:             $AWS_S3_BUCKET
+EOF
+else
+cat << EOF
+  AWS S3:             Not configured
+EOF
+fi
+
+cat << EOF
+
+${CYAN}Demo Organization:${NC}
+EOF
+
+if [[ $CREATE_DEMO_ORG =~ ^[Yy]$ ]]; then
+cat << EOF
+  Demo Org:           Enabled
+  Org Email:          $DEMO_ORG_EMAIL
+  Admin Email:        $DEMO_ORG_ADMIN_EMAIL
+EOF
+else
+cat << EOF
+  Demo Org:           Disabled
+EOF
+fi
+
+cat << EOF
+
 ${CYAN}Security:${NC}
-  JWT Secrets:        Auto-generated
+  JWT Secrets:        Auto-generated (32-character secure keys)
 
 ${CYAN}Options:${NC}
   Seed Database:      $SEED_DATABASE
@@ -431,75 +677,153 @@ fi
 
 log_section "Creating Environment Configuration"
 
-ENV_CONTENT="# Earth To Orbit - Environment Configuration
+# Build environment content
+ENV_CONTENT="# =============================================================================
+# EARTH TO ORBIT - Environment Configuration
+# =============================================================================
 # Generated: $(date)
+# DO NOT commit this file to version control
+# =============================================================================
 
-# ============================================
+# =============================================================================
+# ENVIRONMENT
+# =============================================================================
+NODE_ENV=production
+PORT=5000
+
+# =============================================================================
 # DOMAIN CONFIGURATION
-# ============================================
+# =============================================================================
 WEB_DOMAIN=$WEB_DOMAIN
 API_DOMAIN=$API_DOMAIN
 DOMAIN=$WEB_DOMAIN
 SSL_EMAIL=$SSL_EMAIL
 
-# ============================================
+# =============================================================================
 # APPLICATION URLS (Auto-configured)
-# ============================================
+# =============================================================================
 FRONTEND_URL=https://$WEB_DOMAIN
 API_URL=https://$API_DOMAIN
 NEXT_PUBLIC_API_URL=https://$API_DOMAIN
 
-# ============================================
+# =============================================================================
 # DATABASE CONFIGURATION
-# ============================================
-MONGODB_URI=mongodb://$MONGODB_USER:$MONGODB_PASSWORD@mongodb:27017/earth-to-orbit?authSource=admin
+# =============================================================================
+MONGODB_URI=mongodb://$MONGODB_USER:$MONGODB_PASSWORD@mongodb:27017/$MONGODB_DATABASE?authSource=admin
 MONGODB_USER=$MONGODB_USER
 MONGODB_PASSWORD=$MONGODB_PASSWORD
-MONGODB_DATABASE=earth-to-orbit
+MONGODB_DATABASE=$MONGODB_DATABASE
 
-# ============================================
+# =============================================================================
 # JWT SECRETS (Auto-generated)
-# ============================================
+# =============================================================================
 JWT_SECRET=$JWT_SECRET
 JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET
 JWT_EXPIRES_IN=24h
 JWT_REFRESH_EXPIRES_IN=7d
+"
 
-# ============================================
+# Add email configuration based on service type
+if [ "$EMAIL_SERVICE" = "smtp" ]; then
+ENV_CONTENT+="
+# =============================================================================
 # EMAIL CONFIGURATION (SMTP)
-# ============================================
+# =============================================================================
 SMTP_HOST=$SMTP_HOST
 SMTP_PORT=$SMTP_PORT
 SMTP_USER=$SMTP_USER
 SMTP_PASSWORD=$SMTP_PASSWORD
 SMTP_FROM_NAME=$SMTP_FROM_NAME
-SMTP_FROM_EMAIL=$SMTP_USER
+SMTP_FROM_EMAIL=$SMTP_FROM_EMAIL
+"
+else
+ENV_CONTENT+="
+# =============================================================================
+# EMAIL CONFIGURATION (Resend)
+# =============================================================================
+RESEND_API_KEY=$RESEND_API_KEY
+"
+fi
 
-# ============================================
+# Continue with company info
+ENV_CONTENT+="
+# =============================================================================
+# COMPANY/BRANDING INFORMATION
+# =============================================================================
+COMPANY_NAME=$COMPANY_NAME
+COMPANY_EMAIL=$COMPANY_EMAIL
+SUPPORT_EMAIL=$SUPPORT_EMAIL
+COMPANY_WEBSITE=$COMPANY_WEBSITE
+COMPANY_PHONE=$COMPANY_PHONE
+COMPANY_ADDRESS=$COMPANY_ADDRESS
+NEXT_PUBLIC_APP_NAME=$COMPANY_NAME
+
+# =============================================================================
 # PLATFORM ADMIN ACCOUNT
-# ============================================
+# =============================================================================
 DEMO_PLATFORM_ADMIN_FIRST_NAME=$ADMIN_FIRST_NAME
 DEMO_PLATFORM_ADMIN_LAST_NAME=$ADMIN_LAST_NAME
 DEMO_PLATFORM_ADMIN_EMAIL=$ADMIN_EMAIL
 DEMO_PLATFORM_ADMIN_PASSWORD=$ADMIN_PASSWORD
 DEMO_PLATFORM_ADMIN_PHONE=$ADMIN_PHONE
+"
 
-# ============================================
-# APPLICATION SETTINGS
-# ============================================
-NODE_ENV=production
-PORT=5000
-NEXT_PUBLIC_APP_NAME=Earth To Orbit
-
-# ============================================
-# PAYMENT GATEWAY (Optional - Configure later)
-# ============================================
+# Add payment gateway if configured
+if [ -n "$RAZORPAY_KEY_ID" ]; then
+ENV_CONTENT+="
+# =============================================================================
+# PAYMENT GATEWAY (Razorpay)
+# =============================================================================
+RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID
+RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET
+"
+else
+ENV_CONTENT+="
+# =============================================================================
+# PAYMENT GATEWAY (Not configured)
+# =============================================================================
 # RAZORPAY_KEY_ID=
 # RAZORPAY_KEY_SECRET=
+"
+fi
 
-# ============================================
+# Add AWS S3 if configured
+if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+ENV_CONTENT+="
+# =============================================================================
+# AWS S3 STORAGE
+# =============================================================================
+AWS_REGION=$AWS_REGION
+AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+AWS_S3_BUCKET=$AWS_S3_BUCKET
+"
+else
+ENV_CONTENT+="
+# =============================================================================
+# AWS S3 STORAGE (Not configured)
+# =============================================================================
+AWS_REGION=$AWS_REGION
+# AWS_ACCESS_KEY_ID=
+# AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET=$AWS_S3_BUCKET
+"
+fi
+
+# Add demo organization
+ENV_CONTENT+="
+# =============================================================================
+# DEMO ORGANIZATION (For testing)
+# =============================================================================
+DEMO_ORG_EMAIL=$DEMO_ORG_EMAIL
+DEMO_ORG_ADMIN_EMAIL=$DEMO_ORG_ADMIN_EMAIL
+DEMO_ORG_ADMIN_PASSWORD=$DEMO_ORG_ADMIN_PASSWORD
+DEMO_ORG_MEMBER_EMAIL=$DEMO_ORG_MEMBER_EMAIL
+DEMO_ORG_MEMBER_PASSWORD=$DEMO_ORG_MEMBER_PASSWORD
+
+# =============================================================================
 # LOGGING
-# ============================================
+# =============================================================================
 LOG_LEVEL=info
 "
 
@@ -514,14 +838,13 @@ log_success "Environment file created: .env"
 log_info "Updating Nginx configuration..."
 
 # Update nginx config with both domains
-sed -i "s/\${DOMAIN}/$WEB_DOMAIN/g" "$SCRIPT_DIR/nginx/conf.d/default.conf"
-sed -i "s/server_name.*;/server_name $WEB_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf"
+sed -i "s/\${DOMAIN}/$WEB_DOMAIN/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
+sed -i "s/server_name.*;/server_name $WEB_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
 
 # Create API domain configuration if not exists
-if ! grep -q "$API_DOMAIN" "$SCRIPT_DIR/nginx/conf.d/default.conf"; then
+if ! grep -q "$API_DOMAIN" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null; then
     log_info "Adding API domain to nginx configuration..."
-    # The nginx config should already have api domain setup, just update it
-    sed -i "s/server_name api\.\${DOMAIN};/server_name $API_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf"
+    sed -i "s/server_name api\.\${DOMAIN};/server_name $API_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
 fi
 
 log_success "Nginx configuration updated"
@@ -602,10 +925,10 @@ deploy_application() {
     log_section "Firewall Configuration"
 
     if exec_cmd "command -v ufw >/dev/null 2>&1"; then
-        exec_cmd "ufw allow 80/tcp && ufw allow 443/tcp"
+        exec_cmd "ufw allow 80/tcp && ufw allow 443/tcp" || true
         log_success "UFW firewall configured"
     elif exec_cmd "command -v firewall-cmd >/dev/null 2>&1"; then
-        exec_cmd "firewall-cmd --permanent --add-service=http && firewall-cmd --permanent --add-service=https && firewall-cmd --reload"
+        exec_cmd "firewall-cmd --permanent --add-service=http && firewall-cmd --permanent --add-service=https && firewall-cmd --reload" || true
         log_success "firewalld configured"
     else
         log_warn "No firewall detected. Ensure ports 80 and 443 are open."
@@ -617,8 +940,8 @@ deploy_application() {
 
     log_section "DNS Verification"
 
-    WEB_IP=$(dig +short "$WEB_DOMAIN" | tail -n1)
-    API_IP=$(dig +short "$API_DOMAIN" | tail -n1)
+    WEB_IP=$(dig +short "$WEB_DOMAIN" 2>/dev/null | tail -n1)
+    API_IP=$(dig +short "$API_DOMAIN" 2>/dev/null | tail -n1)
 
     if [ -z "$WEB_IP" ]; then
         log_warn "DNS for $WEB_DOMAIN is not configured"
@@ -734,6 +1057,11 @@ ${CYAN}Platform Admin Login:${NC}
   📧 Email:    $ADMIN_EMAIL
   🔑 Password: $ADMIN_PASSWORD
 
+${CYAN}Company Information:${NC}
+  🏢 Name:     $COMPANY_NAME
+  📧 Email:    $COMPANY_EMAIL
+  ☎️  Phone:    $COMPANY_PHONE
+
 ${CYAN}Useful Commands:${NC}
   📋 View logs:        docker compose logs -f
   🔄 Restart:          docker compose restart
@@ -745,6 +1073,17 @@ ${YELLOW}⚠️  IMPORTANT SECURITY NOTES:${NC}
   • Change admin password after first login
   • Configure backup strategy
   • Review firewall rules
+  • Configure Razorpay webhooks (if using payments)
+  • Setup monitoring and alerts
+
+${CYAN}Next Steps:${NC}
+  1. Login to admin panel: https://$WEB_DOMAIN/admin
+  2. Change your admin password
+  3. Configure organization settings
+  4. Add testing sites and labs
+  5. Configure payment gateway (if skipped)
+  6. Setup AWS S3 for file uploads (if skipped)
+  7. Test email notifications
 
 EOF
 
