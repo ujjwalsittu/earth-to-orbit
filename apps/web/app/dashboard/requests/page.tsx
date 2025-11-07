@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Plus, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Plus, Search, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,20 +18,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { apiClient } from '@/lib/api-client';
-import { formatDate, formatCurrency } from '@/lib/utils';
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { apiClient } from "@/lib/api-client";
+import { formatDate, formatCurrency } from "@/lib/utils";
 
 export default function RequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   useEffect(() => {
     loadRequests();
@@ -42,7 +54,7 @@ export default function RequestsPage() {
         setRequests(response.data || []);
       }
     } catch (error) {
-      console.error('Failed to load requests', error);
+      console.error("Failed to load requests", error);
     } finally {
       setLoading(false);
     }
@@ -62,7 +74,7 @@ export default function RequestsPage() {
     }
 
     // Apply status filter
-    if (statusFilter !== 'ALL') {
+    if (statusFilter !== "ALL") {
       filtered = filtered.filter((req) => req.status === statusFilter);
     }
 
@@ -71,16 +83,16 @@ export default function RequestsPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
-      SUBMITTED: 'bg-blue-100 text-blue-800',
-      UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
-      APPROVED: 'bg-green-100 text-green-800',
-      REJECTED: 'bg-red-100 text-red-800',
-      SCHEDULED: 'bg-purple-100 text-purple-800',
-      COMPLETED: 'bg-green-100 text-green-800',
-      PAID: 'bg-green-100 text-green-800',
+      DRAFT: "bg-gray-100 text-gray-800",
+      SUBMITTED: "bg-blue-100 text-blue-800",
+      UNDER_REVIEW: "bg-yellow-100 text-yellow-800",
+      APPROVED: "bg-green-100 text-green-800",
+      REJECTED: "bg-red-100 text-red-800",
+      SCHEDULED: "bg-purple-100 text-purple-800",
+      COMPLETED: "bg-green-100 text-green-800",
+      PAID: "bg-green-100 text-green-800",
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   return (
@@ -88,7 +100,9 @@ export default function RequestsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">My Requests</h1>
-          <p className="text-muted-foreground">Manage your lab and machinery bookings</p>
+          <p className="text-muted-foreground">
+            Manage your lab and machinery bookings
+          </p>
         </div>
         <Link href="/dashboard/requests/new">
           <Button>
@@ -130,7 +144,7 @@ export default function RequestsPage() {
               </Select>
             </div>
           </div>
-          {(searchQuery || statusFilter !== 'ALL') && (
+          {(searchQuery || statusFilter !== "ALL") && (
             <div className="mt-4 text-sm text-muted-foreground">
               Showing {filteredRequests.length} of {requests.length} requests
             </div>
@@ -141,7 +155,9 @@ export default function RequestsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Requests</CardTitle>
-          <CardDescription>View and track all your booking requests</CardDescription>
+          <CardDescription>
+            View and track all your booking requests
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -162,7 +178,9 @@ export default function RequestsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="whitespace-nowrap">Request #</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Request #
+                    </TableHead>
                     <TableHead className="whitespace-nowrap">Title</TableHead>
                     <TableHead className="whitespace-nowrap">Status</TableHead>
                     <TableHead className="whitespace-nowrap">Total</TableHead>
@@ -173,13 +191,23 @@ export default function RequestsPage() {
                 <TableBody>
                   {filteredRequests.map((request) => (
                     <TableRow key={request._id}>
-                      <TableCell className="font-medium whitespace-nowrap">{request.requestNumber}</TableCell>
-                      <TableCell className="min-w-[200px]">{request.title}</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
+                      <TableCell className="font-medium whitespace-nowrap">
+                        {request.requestNumber}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">{formatCurrency(request.totals?.total || 0)}</TableCell>
-                      <TableCell className="whitespace-nowrap">{formatDate(request.createdAt)}</TableCell>
+                      <TableCell className="min-w-[200px]">
+                        {request.title}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(request.status)}>
+                          {request.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatCurrency(request.total || 0)}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatDate(request.createdAt)}
+                      </TableCell>
                       <TableCell className="whitespace-nowrap">
                         <Link href={`/dashboard/requests/${request._id}`}>
                           <Button variant="outline" size="sm">

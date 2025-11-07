@@ -35,8 +35,21 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
     try {
       const response: any = await apiClient.getRequestById(params.id);
       if (response.success) {
-        setRequest(response.data.request);
-        setInvoices(response.data.invoices || []);
+        // API returns the request document directly in `data`
+        setRequest(response.data);
+
+        // Fetch invoice for this request (if any)
+        try {
+          const invoiceRes: any = await apiClient.get(`/billing/invoices/request/${params.id}`);
+          if (invoiceRes.success && invoiceRes.data) {
+            setInvoices([invoiceRes.data]);
+          } else {
+            setInvoices([]);
+          }
+        } catch (e) {
+          // No invoice found or access denied; proceed without invoices
+          setInvoices([]);
+        }
       }
     } catch (error) {
       console.error('Failed to load request', error);
@@ -121,17 +134,18 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
   };
 
   const getStatusColor = (status: string) => {
+    const s = (status || '').toLowerCase();
     const colors: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
-      SUBMITTED: 'bg-blue-100 text-blue-800',
-      UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
-      APPROVED: 'bg-green-100 text-green-800',
-      REJECTED: 'bg-red-100 text-red-800',
-      SCHEDULED: 'bg-purple-100 text-purple-800',
-      COMPLETED: 'bg-green-100 text-green-800',
-      PAID: 'bg-green-100 text-green-800',
+      draft: 'bg-gray-100 text-gray-800',
+      submitted: 'bg-blue-100 text-blue-800',
+      under_review: 'bg-yellow-100 text-yellow-800',
+      approved: 'bg-green-100 text-green-800',
+      rejected: 'bg-red-100 text-red-800',
+      in_progress: 'bg-purple-100 text-purple-800',
+      completed: 'bg-green-100 text-green-800',
+      cancelled: 'bg-gray-200 text-gray-800',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[s] || 'bg-gray-100 text-gray-800';
   };
 
   if (loading) {
@@ -162,14 +176,8 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
           <p className="text-muted-foreground">{request.title}</p>
         </div>
         <div className="flex items-center gap-2">
-          {(request.status === 'SCHEDULED' || request.status === 'APPROVED') && request.scheduledEnd && (
-            <ExtensionRequestDialog
-              requestId={request._id}
-              currentEnd={request.scheduledEnd}
-              onSuccess={loadRequest}
-            />
-          )}
-          <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
+          {/* Extension request flow requires scheduling fields not present in current API; hidden for now */}
+          <Badge className={getStatusColor(request.status)}>{(request.status || '').toUpperCase()}</Badge>
         </div>
       </div>
 
@@ -186,17 +194,15 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-semibold">Submitted</p>
+              <p className="text-sm font-semibold">Created</p>
               <p className="text-sm text-muted-foreground">
-                {request.submittedAt ? formatDate(request.submittedAt) : 'Not yet submitted'}
+                {request.createdAt ? formatDate(request.createdAt) : '—'}
               </p>
             </div>
-            {request.scheduledStart && (
+            {request.approvedAt && (
               <div>
-                <p className="text-sm font-semibold">Scheduled</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(request.scheduledStart)} to {formatDate(request.scheduledEnd)}
-                </p>
+                <p className="text-sm font-semibold">Approved</p>
+                <p className="text-sm text-muted-foreground">{formatDate(request.approvedAt)}</p>
               </div>
             )}
           </div>
@@ -210,33 +216,35 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {request.machineryItems.map((item: any, index: number) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <p className="font-medium">{item.labId?.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.labId?.siteId?.name} • {item.durationHours}h
-                  </p>
+            {(request.items || [])
+              .filter((item: any) => item.itemType === 'lab')
+              .map((item: any, index: number) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">{item.item?.name || 'Lab'}</p>
+                    <p className="text-sm text-muted-foreground">{item.days} day(s)</p>
+                  </div>
+                  <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
                 </div>
-                <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
-              </div>
-            ))}
+              ))}
           </div>
         </CardContent>
       </Card>
 
       {/* Components */}
-      {request.componentItems?.length > 0 && (
+      {(request.items || []).some((i: any) => i.itemType === 'component') && (
         <Card>
           <CardHeader>
             <CardTitle>Components</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {request.componentItems.map((item: any, index: number) => (
+              {(request.items || [])
+                .filter((item: any) => item.itemType === 'component')
+                .map((item: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 border rounded">
                   <div>
-                    <p className="font-medium">{item.componentId?.name}</p>
+                    <p className="font-medium">{item.item?.name || 'Component'}</p>
                     <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                   </div>
                   <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
@@ -254,26 +262,16 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Machinery</span>
-            <span>{formatCurrency(request.totals.machinerySubtotal)}</span>
-          </div>
-          {request.totals.componentsSubtotal > 0 && (
-            <div className="flex justify-between text-sm">
-              <span>Components</span>
-              <span>{formatCurrency(request.totals.componentsSubtotal)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm">
             <span>Subtotal</span>
-            <span>{formatCurrency(request.totals.subtotal)}</span>
+            <span>{formatCurrency(request.subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>GST ({request.totals.taxPercent}%)</span>
-            <span>{formatCurrency(request.totals.taxAmount)}</span>
+            <span>GST</span>
+            <span>{formatCurrency(request.tax)}</span>
           </div>
           <div className="flex justify-between font-bold text-lg border-t pt-2">
             <span>Total</span>
-            <span>{formatCurrency(request.totals.total)}</span>
+            <span>{formatCurrency(request.total)}</span>
           </div>
         </CardContent>
       </Card>
