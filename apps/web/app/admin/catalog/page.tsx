@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -15,11 +13,16 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api-client';
 import { formatCurrency } from '@/lib/utils';
+import { CreateSiteDialog } from '@/components/admin/create-site-dialog';
+import { CreateLabDialog } from '@/components/admin/create-lab-dialog';
+import { CreateComponentDialog } from '@/components/admin/create-component-dialog';
+import { CreateStaffDialog } from '@/components/admin/create-staff-dialog';
 
 export default function AdminCatalogPage() {
   const [labs, setLabs] = useState<any[]>([]);
   const [components, setComponents] = useState<any[]>([]);
   const [sites, setSites] = useState<any[]>([]);
+  const [staff, setStaff] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,15 +31,17 @@ export default function AdminCatalogPage() {
 
   const loadCatalog = async () => {
     try {
-      const [labsRes, componentsRes, sitesRes]: any = await Promise.all([
+      const [labsRes, componentsRes, sitesRes, staffRes]: any = await Promise.all([
         apiClient.getLabs(),
         apiClient.getComponents(),
         apiClient.getSites(),
+        apiClient.getStaff(),
       ]);
 
       if (labsRes.success) setLabs(labsRes.data.labs || []);
       if (componentsRes.success) setComponents(componentsRes.data.components || []);
       if (sitesRes.success) setSites(sitesRes.data.sites || []);
+      if (staffRes.success) setStaff(staffRes.data.staff || []);
     } catch (error) {
       console.error('Failed to load catalog', error);
     } finally {
@@ -63,10 +68,7 @@ export default function AdminCatalogPage() {
               <CardTitle>Sites</CardTitle>
               <CardDescription>Physical testing centers</CardDescription>
             </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Site
-            </Button>
+            <CreateSiteDialog onSuccess={loadCatalog} />
           </div>
         </CardHeader>
         <CardContent>
@@ -109,10 +111,7 @@ export default function AdminCatalogPage() {
               <CardTitle>Labs & Machinery</CardTitle>
               <CardDescription>Testing equipment and facilities</CardDescription>
             </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Lab
-            </Button>
+            <CreateLabDialog onSuccess={loadCatalog} />
           </div>
         </CardHeader>
         <CardContent>
@@ -155,10 +154,7 @@ export default function AdminCatalogPage() {
               <CardTitle>Components</CardTitle>
               <CardDescription>Satellite parts and modules</CardDescription>
             </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Component
-            </Button>
+            <CreateComponentDialog onSuccess={loadCatalog} />
           </div>
         </CardHeader>
         <CardContent>
@@ -184,6 +180,51 @@ export default function AdminCatalogPage() {
                   <TableCell>
                     <Badge variant={component.isActive ? 'default' : 'destructive'}>
                       {component.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Staff */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Staff Members</CardTitle>
+              <CardDescription>Technical staff for assistance and support</CardDescription>
+            </div>
+            <CreateStaffDialog onSuccess={loadCatalog} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Designation</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Rate/Hour</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {staff.map((member) => (
+                <TableRow key={member._id}>
+                  <TableCell className="font-medium">
+                    {member.firstName} {member.lastName}
+                  </TableCell>
+                  <TableCell>{member.email}</TableCell>
+                  <TableCell>{member.designation || 'N/A'}</TableCell>
+                  <TableCell>{member.department || 'N/A'}</TableCell>
+                  <TableCell>{member.ratePerHour ? formatCurrency(member.ratePerHour) : 'N/A'}</TableCell>
+                  <TableCell>
+                    <Badge variant={member.isAvailable ? 'default' : 'secondary'}>
+                      {member.isAvailable ? 'Available' : 'Not Available'}
                     </Badge>
                   </TableCell>
                 </TableRow>

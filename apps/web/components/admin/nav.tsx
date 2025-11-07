@@ -9,6 +9,8 @@ import {
   Package,
   Users,
   CreditCard,
+  Building,
+  DollarSign,
   LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +20,8 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/requests', label: 'Requests', icon: FileCheck },
-  { href: '/admin/payments', label: 'Payments', icon: CreditCard },
+  { href: '/admin/organizations', label: 'Organizations', icon: Building },
+  { href: '/admin/finance', label: 'Finance', icon: DollarSign },
   { href: '/admin/catalog', label: 'Catalog', icon: Package },
   { href: '/admin/users', label: 'Users', icon: Users },
 ];
