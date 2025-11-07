@@ -10,24 +10,41 @@ import {
   Bell,
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Building,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/requests', label: 'My Requests', icon: FileText },
-  { href: '/dashboard/invoices', label: 'Invoices', icon: CreditCard },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-];
+const getNavItems = (userRole?: string) => {
+  const baseItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/requests', label: 'My Requests', icon: FileText },
+    { href: '/dashboard/invoices', label: 'Invoices', icon: CreditCard },
+    { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
+  ];
+
+  // Add organization management for ORG_ADMIN
+  if (userRole === 'ORG_ADMIN') {
+    baseItems.push(
+      { href: '/dashboard/organization', label: 'Organization', icon: Building },
+      { href: '/dashboard/team', label: 'Team', icon: Users }
+    );
+  }
+
+  baseItems.push({ href: '/dashboard/settings', label: 'Settings', icon: Settings });
+
+  return baseItems;
+};
 
 export function DashboardNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
+
+  const navItems = getNavItems(user?.role);
 
   const handleLogout = () => {
     clearAuth();
