@@ -114,7 +114,7 @@ services:
     volumes:
       - certbot_www:/var/www/certbot:rw
       - certbot_conf:/etc/letsencrypt:rw
-    command: certonly --webroot --webroot-path=/var/www/certbot --email ${SSL_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} -d api.${DOMAIN}
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${SSL_EMAIL} --agree-tos --no-eff-email --expand -d ${WEB_DOMAIN} -d ${API_DOMAIN}
     depends_on:
       - nginx
     networks:

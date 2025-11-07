@@ -1069,17 +1069,11 @@ log_success "Environment file created: .env"
 
 log_info "Updating Nginx configuration..."
 
-# Update nginx config with both domains
-sed -i "s/\${DOMAIN}/$WEB_DOMAIN/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
-sed -i "s/server_name.*;/server_name $WEB_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
+# Replace WEB_DOMAIN and API_DOMAIN placeholders in nginx config
+sed -i "s/\${WEB_DOMAIN}/$WEB_DOMAIN/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
+sed -i "s/\${API_DOMAIN}/$API_DOMAIN/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
 
-# Create API domain configuration if not exists
-if ! grep -q "$API_DOMAIN" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null; then
-    log_info "Adding API domain to nginx configuration..."
-    sed -i "s/server_name api\.\${DOMAIN};/server_name $API_DOMAIN;/g" "$SCRIPT_DIR/nginx/conf.d/default.conf" 2>/dev/null || true
-fi
-
-log_success "Nginx configuration updated"
+log_success "Nginx configuration updated with domains: $WEB_DOMAIN (web), $API_DOMAIN (api)"
 
 # =============================================================================
 # Define Deployment Function

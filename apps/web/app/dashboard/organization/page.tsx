@@ -37,11 +37,11 @@ export default function OrganizationPage() {
 
   const loadOrganizationData = async () => {
     try {
-      if (!user?.organization) return;
+      if (!user?.organizationId) return;
 
       const [orgRes, statsRes]: any = await Promise.all([
-        apiClient.get(`/api/organizations/${user.organization}`),
-        apiClient.get(`/api/organizations/${user.organization}/stats`),
+        apiClient.get(`/api/organizations/${user.organizationId}`),
+        apiClient.get(`/api/organizations/${user.organizationId}/stats`),
       ]);
 
       if (orgRes.success) {
