@@ -74,7 +74,8 @@ export default function TeamPage() {
     try {
       if (!user?.organizationId) return;
 
-      const res: any = await apiClient.get(`/api/organizations/${user.organizationId}/members`);
+      const orgId = typeof user.organizationId === 'string' ? user.organizationId : (user.organizationId as any)?._id;
+      const res: any = await apiClient.get(`/api/organizations/${orgId}/members`);
 
       if (res.success) {
         setMembers(res.data || []);
@@ -103,8 +104,9 @@ export default function TeamPage() {
 
     setInviting(true);
     try {
+      const orgId = typeof user?.organizationId === 'string' ? user.organizationId : (user?.organizationId as any)?._id;
       const res: any = await apiClient.post(
-        `/api/organizations/${user?.organizationId}/members`,
+        `/api/organizations/${orgId}/members`,
         formData
       );
 
@@ -146,8 +148,9 @@ export default function TeamPage() {
     }
 
     try {
+      const orgId = typeof user?.organizationId === 'string' ? user.organizationId : (user?.organizationId as any)?._id;
       const res: any = await apiClient.delete(
-        `/api/organizations/${user?.organizationId}/members/${memberId}`
+        `/api/organizations/${orgId}/members/${memberId}`
       );
 
       if (res.success) {

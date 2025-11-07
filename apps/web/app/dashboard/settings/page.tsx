@@ -51,9 +51,11 @@ export default function SettingsPage() {
 
   const loadUserData = async () => {
     try {
+      // For authenticated user, organizationId is always a string
+      const orgId = typeof user?.organizationId === 'string' ? user.organizationId : (user?.organizationId as any)?._id;
       const [userRes, orgRes]: any = await Promise.all([
         apiClient.get('/api/auth/me'),
-        apiClient.get(`/api/organizations/${user?.organizationId}`),
+        apiClient.get(`/api/organizations/${orgId}`),
       ]);
 
       if (userRes.data?.success) {
@@ -160,7 +162,8 @@ export default function SettingsPage() {
     setSaving(true);
 
     try {
-      await apiClient.put(`/api/organizations/${user?.organizationId}`, organizationData);
+      const orgId = typeof user?.organizationId === 'string' ? user.organizationId : (user?.organizationId as any)?._id;
+      await apiClient.put(`/api/organizations/${orgId}`, organizationData);
       toast({
         title: 'Organization updated',
         description: 'Organization details have been updated successfully',
