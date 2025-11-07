@@ -1,13 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+interface Organization {
+  name?: string;
+  email?: string;
+  [key: string]: any; // Allow other organization properties
+}
+
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
   role: string;
-  organizationId: string;
+  organizationId: string | Organization; // Can be string ID or populated object
 }
 
 interface AuthState {

@@ -39,9 +39,10 @@ export default function OrganizationPage() {
     try {
       if (!user?.organizationId) return;
 
+      const orgId = typeof user.organizationId === 'string' ? user.organizationId : (user.organizationId as any)?._id;
       const [orgRes, statsRes]: any = await Promise.all([
-        apiClient.get(`/api/organizations/${user.organizationId}`),
-        apiClient.get(`/api/organizations/${user.organizationId}/stats`),
+        apiClient.get(`/api/organizations/${orgId}`),
+        apiClient.get(`/api/organizations/${orgId}/stats`),
       ]);
 
       if (orgRes.success) {
