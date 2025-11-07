@@ -139,6 +139,10 @@ class APIClient {
     return this.client.post(`/requests/${id}/approve`, data);
   }
 
+  async rejectRequest(id: string, data: any) {
+    return this.client.post(`/requests/${id}/reject`, data);
+  }
+
   // Availability
   async checkAvailability(params: {
     itemId: string;
