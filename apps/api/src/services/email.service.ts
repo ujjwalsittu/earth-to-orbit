@@ -1,6 +1,6 @@
-import { Resend } from 'resend';
-import { env } from '../config/env';
-import logger from '../utils/logger';
+import { Resend } from "resend";
+import { env } from "../config/env";
+import logger from "../utils/logger";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -23,12 +23,12 @@ export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
-      replyTo: replyTo || env.SUPPORT_EMAIL,
+      reply_to: replyTo || env.SUPPORT_EMAIL,
     });
 
-    logger.info(`Email sent to ${Array.isArray(to) ? to.join(', ') : to}`);
+    logger.info(`Email sent to ${Array.isArray(to) ? to.join(", ") : to}`);
   } catch (error: any) {
-    logger.error('Failed to send email:', error);
+    logger.error("Failed to send email:", error);
     throw new Error(`Failed to send email: ${error.message}`);
   }
 };
@@ -124,7 +124,9 @@ export const sendRequestApprovedEmail = async (
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Title</p>
               <p style="color: #064e3b; font-size: 16px; font-weight: 600; margin: 0;">${title}</p>
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Total Amount</p>
-              <p style="color: #064e3b; font-size: 20px; font-weight: 600; margin: 0;">₹${total.toLocaleString('en-IN')}</p>
+              <p style="color: #064e3b; font-size: 20px; font-weight: 600; margin: 0;">₹${total.toLocaleString(
+                "en-IN"
+              )}</p>
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Invoice Number</p>
               <p style="color: #064e3b; font-size: 16px; font-weight: 600; margin: 0;">${invoiceNumber}</p>
             </div>
@@ -138,7 +140,9 @@ export const sendRequestApprovedEmail = async (
             </div>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
             <p style="color: #64748b; font-size: 14px; line-height: 24px;">
-              Questions? Contact us at <a href="mailto:${env.SUPPORT_EMAIL}" style="color: #3b82f6;">${env.SUPPORT_EMAIL}</a>
+              Questions? Contact us at <a href="mailto:${
+                env.SUPPORT_EMAIL
+              }" style="color: #3b82f6;">${env.SUPPORT_EMAIL}</a>
             </p>
           </div>
         </div>
@@ -248,7 +252,9 @@ export const sendPaymentReceivedEmail = async (
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Payment ID</p>
               <p style="color: #064e3b; font-size: 16px; font-weight: 600; margin: 0;">${paymentId}</p>
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Amount</p>
-              <p style="color: #064e3b; font-size: 20px; font-weight: 600; margin: 0;">₹${amount.toLocaleString('en-IN')}</p>
+              <p style="color: #064e3b; font-size: 20px; font-weight: 600; margin: 0;">₹${amount.toLocaleString(
+                "en-IN"
+              )}</p>
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Request Number</p>
               <p style="color: #064e3b; font-size: 16px; font-weight: 600; margin: 0;">${requestNumber}</p>
               <p style="color: #065f46; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 16px 0 4px 0;">Invoice Number</p>
@@ -259,7 +265,9 @@ export const sendPaymentReceivedEmail = async (
             </p>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
             <p style="color: #64748b; font-size: 14px; line-height: 24px;">
-              Questions? Contact us at <a href="mailto:${env.SUPPORT_EMAIL}" style="color: #3b82f6;">${env.SUPPORT_EMAIL}</a>
+              Questions? Contact us at <a href="mailto:${
+                env.SUPPORT_EMAIL
+              }" style="color: #3b82f6;">${env.SUPPORT_EMAIL}</a>
             </p>
           </div>
         </div>

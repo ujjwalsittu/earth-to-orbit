@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import Lab from '../models/Lab';
 import Component from '../models/Component';
@@ -10,7 +11,7 @@ import { sendSuccess, sendPaginatedSuccess } from '../utils/response';
 import { validate } from '../middleware/validation.middleware';
 import { optionalAuthenticate } from '../middleware/auth.middleware';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // Apply optional authentication to all routes
 router.use(optionalAuthenticate);

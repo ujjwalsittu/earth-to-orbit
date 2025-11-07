@@ -5,16 +5,21 @@ nixPkgs = ["nodejs-18_x", "pnpm"]
 
 [phases.install]
 cmds = [
-  "pnpm install --frozen-lockfile"
+  "pnpm install --no-frozen-lockfile"
 ]
 
 [phases.build]
 cmds = [
-  "cd apps/api && pnpm build"
+  "cd apps/api && pnpm install --no-frozen-lockfile && pnpm build"
+]
+
+[phases.release]
+cmds = [
+  "echo 'Skipping release tasks (no automatic seed/migrate)'"
 ]
 
 [start]
-cmd = "cd apps/api && node dist/index.js"
+cmd = "cd apps/api && node dist/server.js"
 
 [variables]
 NODE_ENV = "production"

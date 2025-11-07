@@ -1,10 +1,9 @@
 # Railway Procfile for Earth To Orbit API
 
-# Main API Server
-web: cd apps/api && node dist/server.js
+# Main API Server (single process only)
+api: cd apps/api && node dist/server.js
 
-# Database Seed Script (run manually using: railway run seed)
-seed: pnpm seed
-
-# Database migrations (if needed in future)
-# release: pnpm migrate
+# Note: Seed and migrations should be run manually via Railway CLI or dashboard.
+# Keeping them out of Procfile prevents Railway from creating extra services.
+# To seed: railway run pnpm seed
+# To migrate (future): railway run pnpm migrate

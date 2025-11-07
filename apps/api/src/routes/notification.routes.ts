@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import Notification from '../models/Notification';
 import { authenticate } from '../middleware/auth.middleware';
 import asyncHandler from '../utils/async-handler';
@@ -6,7 +7,7 @@ import ApiError from '../utils/api-error';
 import { sendSuccess } from '../utils/response';
 import { markAsRead, markAllAsRead, getUnreadCount } from '../services/notification.service';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // All routes require authentication
 router.use(authenticate);

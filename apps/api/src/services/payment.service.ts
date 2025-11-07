@@ -1,9 +1,13 @@
-import Razorpay from 'razorpay';
-import crypto from 'crypto';
-import { env } from '../config/env';
-import Payment, { IPayment, PaymentMethod, PaymentStatus } from '../models/Payment';
-import { generatePaymentId } from '../utils/generate-number';
-import logger from '../utils/logger';
+import Razorpay from "razorpay";
+import crypto from "crypto";
+import { env } from "../config/env";
+import Payment, {
+  IPayment,
+  PaymentMethod,
+  PaymentStatus,
+} from "../models/Payment";
+import { generatePaymentId } from "../utils/generate-number";
+import logger from "../utils/logger";
 
 const razorpay = new Razorpay({
   key_id: env.RAZORPAY_KEY_ID,
@@ -18,7 +22,7 @@ export const createRazorpayOrder = async (
   requestId: string,
   organizationId: string,
   amount: number,
-  currency = 'INR'
+  currency = "INR"
 ): Promise<{ orderId: string; payment: IPayment }> => {
   try {
     // Create Razorpay order
@@ -35,7 +39,9 @@ export const createRazorpayOrder = async (
 
     // Get the next payment sequence number
     const lastPayment = await Payment.findOne().sort({ createdAt: -1 });
-    const sequenceNumber = lastPayment ? parseInt(lastPayment.paymentId.split('-')[2]) + 1 : 1;
+    const sequenceNumber = lastPayment
+      ? parseInt(lastPayment.paymentId.split("-")[2]) + 1
+      : 1;
 
     // Create payment record
     const payment = await Payment.create({
@@ -54,7 +60,7 @@ export const createRazorpayOrder = async (
 
     return { orderId: order.id, payment };
   } catch (error: any) {
-    logger.error('Failed to create Razorpay order:', error);
+    logger.error("Failed to create Razorpay order:", error);
     throw new Error(`Failed to create Razorpay order: ${error.message}`);
   }
 };
@@ -70,18 +76,18 @@ export const verifyRazorpayPayment = async (
   try {
     // Verify signature
     const generatedSignature = crypto
-      .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", env.RAZORPAY_KEY_SECRET!)
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-      .digest('hex');
+      .digest("hex");
 
     if (generatedSignature !== razorpaySignature) {
-      throw new Error('Invalid payment signature');
+      throw new Error("Invalid payment signature");
     }
 
     // Find payment record
     const payment = await Payment.findOne({ razorpayOrderId });
     if (!payment) {
-      throw new Error('Payment record not found');
+      throw new Error("Payment record not found");
     }
 
     // Update payment record
@@ -94,7 +100,7 @@ export const verifyRazorpayPayment = async (
 
     return payment;
   } catch (error: any) {
-    logger.error('Failed to verify Razorpay payment:', error);
+    logger.error("Failed to verify Razorpay payment:", error);
     throw new Error(`Failed to verify payment: ${error.message}`);
   }
 };
@@ -115,7 +121,9 @@ export const createBankTransferPayment = async (
   try {
     // Get the next payment sequence number
     const lastPayment = await Payment.findOne().sort({ createdAt: -1 });
-    const sequenceNumber = lastPayment ? parseInt(lastPayment.paymentId.split('-')[2]) + 1 : 1;
+    const sequenceNumber = lastPayment
+      ? parseInt(lastPayment.paymentId.split("-")[2]) + 1
+      : 1;
 
     // Create payment record
     const payment = await Payment.create({
@@ -124,7 +132,7 @@ export const createBankTransferPayment = async (
       request: requestId,
       organization: organizationId,
       amount,
-      currency: 'INR',
+      currency: "INR",
       method: PaymentMethod.BANK_TRANSFER,
       status: PaymentStatus.PENDING,
       bankTransferDetails: {
@@ -135,11 +143,13 @@ export const createBankTransferPayment = async (
       },
     });
 
-    logger.info(`Bank transfer payment ${payment.paymentId} created for invoice ${invoiceId}`);
+    logger.info(
+      `Bank transfer payment ${payment.paymentId} created for invoice ${invoiceId}`
+    );
 
     return payment;
   } catch (error: any) {
-    logger.error('Failed to create bank transfer payment:', error);
+    logger.error("Failed to create bank transfer payment:", error);
     throw new Error(`Failed to create bank transfer payment: ${error.message}`);
   }
 };
@@ -154,11 +164,11 @@ export const verifyBankTransferPayment = async (
   try {
     const payment = await Payment.findById(paymentId);
     if (!payment) {
-      throw new Error('Payment not found');
+      throw new Error("Payment not found");
     }
 
     if (payment.method !== PaymentMethod.BANK_TRANSFER) {
-      throw new Error('Payment is not a bank transfer');
+      throw new Error("Payment is not a bank transfer");
     }
 
     payment.status = PaymentStatus.COMPLETED;
@@ -172,7 +182,7 @@ export const verifyBankTransferPayment = async (
 
     return payment;
   } catch (error: any) {
-    logger.error('Failed to verify bank transfer:', error);
+    logger.error("Failed to verify bank transfer:", error);
     throw new Error(`Failed to verify bank transfer: ${error.message}`);
   }
 };

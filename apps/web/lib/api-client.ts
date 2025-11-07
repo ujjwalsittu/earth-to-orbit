@@ -4,6 +4,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 class APIClient {
   private client: AxiosInstance;
+  private normalizePath(path: string) {
+    return path.startsWith('/api') ? path.replace(/^\/api/, '') : path;
+  }
 
   constructor() {
     this.client = axios.create({
@@ -40,6 +43,26 @@ class APIClient {
     );
   }
 
+  // Generic HTTP methods for flexibility in pages
+  async get<T = any>(path: string, config?: any): Promise<T> {
+    const res = await this.client.get<T>(this.normalizePath(path), config);
+    return res as unknown as T;
+  }
+
+  async post<T = any>(path: string, data?: any, config?: any): Promise<T> {
+    const res = await this.client.post<T>(this.normalizePath(path), data, config);
+    return res as unknown as T;
+  }
+
+  async put<T = any>(path: string, data?: any, config?: any): Promise<T> {
+    const res = await this.client.put<T>(this.normalizePath(path), data, config);
+    return res as unknown as T;
+  }
+
+  async delete<T = any>(path: string, config?: any): Promise<T> {
+    const res = await this.client.delete<T>(this.normalizePath(path), config);
+    return res as unknown as T;
+  }
   // Auth
   async register(data: any) {
     return this.client.post('/auth/register', data);
@@ -140,10 +163,11 @@ class APIClient {
     return this.client.get('/billing/invoices', { params });
   }
 
-  async getInvoicePDF(id: string) {
-    return this.client.get(`/billing/invoices/${id}/pdf`, {
+  async getInvoicePDF(id: string): Promise<Blob> {
+    const res = await this.client.get<Blob>(`/billing/invoices/${id}/pdf`, {
       responseType: 'blob',
     });
+    return res as unknown as Blob;
   }
 
   // Payments
