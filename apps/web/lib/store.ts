@@ -9,6 +9,7 @@ interface Organization {
 
 interface User {
   id: string;
+  _id?: string; // MongoDB ObjectId
   email: string;
   firstName: string;
   lastName: string;
