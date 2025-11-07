@@ -287,7 +287,7 @@ export function CreateLabDialog({ onSuccess }: { onSuccess?: () => void }) {
                 value={formData.capacityUnits}
                 onChange={(e) => setFormData({ ...formData, capacityUnits: parseInt(e.target.value) || 1 })}
               />
-              <p className="text-xs text-muted-foreground">1 = Exclusive use, >1 = Can be shared</p>
+              <p className="text-xs text-muted-foreground">1 = Exclusive use, &gt;1 = Can be shared</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="leadTimeDays">Lead Time (days)</Label>
