@@ -72,9 +72,9 @@ export default function TeamPage() {
 
   const loadMembers = async () => {
     try {
-      if (!user?.organization) return;
+      if (!user?.organizationId) return;
 
-      const res: any = await apiClient.get(`/api/organizations/${user.organization}/members`);
+      const res: any = await apiClient.get(`/api/organizations/${user.organizationId}/members`);
 
       if (res.success) {
         setMembers(res.data || []);
@@ -104,7 +104,7 @@ export default function TeamPage() {
     setInviting(true);
     try {
       const res: any = await apiClient.post(
-        `/api/organizations/${user?.organization}/members`,
+        `/api/organizations/${user?.organizationId}/members`,
         formData
       );
 
@@ -147,7 +147,7 @@ export default function TeamPage() {
 
     try {
       const res: any = await apiClient.delete(
-        `/api/organizations/${user?.organization}/members/${memberId}`
+        `/api/organizations/${user?.organizationId}/members/${memberId}`
       );
 
       if (res.success) {
