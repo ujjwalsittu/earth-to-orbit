@@ -901,10 +901,16 @@ deploy_application() {
 
         # Detect OS and install Docker
         if [[ $OS_INFO == *"ubuntu"* ]] || [[ $OS_INFO == *"debian"* ]]; then
+            # Clean up any malformed docker.list file
+            exec_cmd "rm -f /etc/apt/sources.list.d/docker.list"
+
             exec_cmd "apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release"
             exec_cmd "mkdir -p /etc/apt/keyrings"
             exec_cmd "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
-            exec_cmd "echo 'deb [arch=\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \$(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null"
+
+            # Add Docker repository properly by evaluating variables first
+            exec_cmd 'ARCH=$(dpkg --print-architecture) && CODENAME=$(lsb_release -cs) && echo "deb [arch=${ARCH} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${CODENAME} stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null'
+
             exec_cmd "apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
             log_success "Docker installed successfully"
         elif [[ $OS_INFO == *"centos"* ]] || [[ $OS_INFO == *"rhel"* ]] || [[ $OS_INFO == *"fedora"* ]]; then
