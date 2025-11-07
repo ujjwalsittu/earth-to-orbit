@@ -24,6 +24,64 @@ NC='\033[0m' # No Color
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Configuration file
+CONFIG_FILE="$SCRIPT_DIR/.deploy-config.env"
+
+# =============================================================================
+# Command Line Arguments
+# =============================================================================
+
+SAVE_CONFIG=false
+AUTO_DEPLOY=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --with-save)
+            SAVE_CONFIG=true
+            shift
+            ;;
+        --auto-deploy)
+            AUTO_DEPLOY=true
+            shift
+            ;;
+        --config)
+            CONFIG_FILE="$2"
+            shift 2
+            ;;
+        --help)
+            cat << "HELP_EOF"
+Earth To Orbit - Deployment Script
+
+Usage: ./deploy.sh [OPTIONS]
+
+OPTIONS:
+    --with-save          Save all configuration answers to .deploy-config.env for future use
+    --auto-deploy        Use saved configuration from .deploy-config.env and deploy automatically
+    --config <file>      Specify custom config file path (default: .deploy-config.env)
+    --help               Show this help message
+
+EXAMPLES:
+    # Interactive deployment and save config for later
+    ./deploy.sh --with-save
+
+    # Automatic deployment using saved config
+    ./deploy.sh --auto-deploy
+
+    # Use custom config file
+    ./deploy.sh --auto-deploy --config /path/to/my-config.env
+
+HELP_EOF
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
 # =============================================================================
 # Utility Functions
 # =============================================================================
@@ -93,12 +151,167 @@ validate_url() {
     fi
 }
 
+# Save configuration to file
+save_configuration() {
+    log_info "Saving configuration to: $CONFIG_FILE"
+
+    cat > "$CONFIG_FILE" << CONFIG_EOF
+# =============================================================================
+# EARTH TO ORBIT - Deployment Configuration
+# =============================================================================
+# Generated: $(date)
+# This file contains all deployment configuration answers
+# DO NOT commit this file to version control (contains sensitive data)
+# =============================================================================
+
+# Deployment Mode
+DEPLOYMENT_TYPE=$DEPLOYMENT_TYPE
+
+# SSH Configuration (for remote deployment)
+SSH_HOST=$SSH_HOST
+SSH_PORT=$SSH_PORT
+SSH_USER=$SSH_USER
+SSH_AUTH=$SSH_AUTH
+SSH_KEY_PATH=$SSH_KEY_PATH
+
+# Domain Configuration
+WEB_DOMAIN=$WEB_DOMAIN
+API_DOMAIN=$API_DOMAIN
+SSL_EMAIL=$SSL_EMAIL
+
+# Database Configuration
+MONGODB_USER=$MONGODB_USER
+MONGODB_DATABASE=$MONGODB_DATABASE
+MONGODB_PASSWORD=$MONGODB_PASSWORD
+
+# Email Service Configuration
+EMAIL_SERVICE=$EMAIL_SERVICE
+SMTP_HOST=$SMTP_HOST
+SMTP_PORT=$SMTP_PORT
+SMTP_USER=$SMTP_USER
+SMTP_PASSWORD=$SMTP_PASSWORD
+SMTP_FROM_NAME=$SMTP_FROM_NAME
+SMTP_FROM_EMAIL=$SMTP_FROM_EMAIL
+RESEND_API_KEY=$RESEND_API_KEY
+
+# Company/Branding Information
+COMPANY_NAME=$COMPANY_NAME
+COMPANY_EMAIL=$COMPANY_EMAIL
+SUPPORT_EMAIL=$SUPPORT_EMAIL
+COMPANY_WEBSITE=$COMPANY_WEBSITE
+COMPANY_PHONE=$COMPANY_PHONE
+COMPANY_ADDRESS=$COMPANY_ADDRESS
+
+# Platform Admin Account
+ADMIN_FIRST_NAME=$ADMIN_FIRST_NAME
+ADMIN_LAST_NAME=$ADMIN_LAST_NAME
+ADMIN_EMAIL=$ADMIN_EMAIL
+ADMIN_PASSWORD=$ADMIN_PASSWORD
+ADMIN_PHONE=$ADMIN_PHONE
+
+# Payment Gateway (Optional)
+CONFIGURE_RAZORPAY=$CONFIGURE_RAZORPAY
+RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID
+RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET
+
+# AWS S3 Storage (Optional)
+CONFIGURE_AWS=$CONFIGURE_AWS
+AWS_REGION=$AWS_REGION
+AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+AWS_S3_BUCKET=$AWS_S3_BUCKET
+
+# Demo Organization (Optional)
+CREATE_DEMO_ORG=$CREATE_DEMO_ORG
+DEMO_ORG_EMAIL=$DEMO_ORG_EMAIL
+DEMO_ORG_ADMIN_EMAIL=$DEMO_ORG_ADMIN_EMAIL
+DEMO_ORG_ADMIN_PASSWORD=$DEMO_ORG_ADMIN_PASSWORD
+DEMO_ORG_MEMBER_EMAIL=$DEMO_ORG_MEMBER_EMAIL
+DEMO_ORG_MEMBER_PASSWORD=$DEMO_ORG_MEMBER_PASSWORD
+
+# Additional Options
+SEED_DATABASE=$SEED_DATABASE
+AUTO_SSL_RENEWAL=$AUTO_SSL_RENEWAL
+
+# Security (these will be regenerated if not set)
+JWT_SECRET=$JWT_SECRET
+JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET
+
+CONFIG_EOF
+
+    chmod 600 "$CONFIG_FILE"  # Secure the file (owner read/write only)
+    log_success "Configuration saved to: $CONFIG_FILE"
+    log_warn "Keep this file secure - it contains sensitive information!"
+}
+
+# Load configuration from file
+load_configuration() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        log_error "Configuration file not found: $CONFIG_FILE"
+        log_info "Run './deploy.sh --with-save' first to create a configuration file"
+        exit 1
+    fi
+
+    log_info "Loading configuration from: $CONFIG_FILE"
+
+    # Source the configuration file
+    source "$CONFIG_FILE"
+
+    # Validate required variables are set
+    if [ -z "$WEB_DOMAIN" ] || [ -z "$API_DOMAIN" ]; then
+        log_error "Invalid configuration file - missing required domains"
+        exit 1
+    fi
+
+    log_success "Configuration loaded successfully"
+
+    # Display loaded configuration summary
+    log_section "Loaded Configuration Summary"
+    cat << SUMMARY_EOF
+${CYAN}Deployment Mode:${NC}      $DEPLOYMENT_TYPE
+${CYAN}Web Domain:${NC}           $WEB_DOMAIN
+${CYAN}API Domain:${NC}           $API_DOMAIN
+${CYAN}Email Service:${NC}        $EMAIL_SERVICE
+${CYAN}Company Name:${NC}         $COMPANY_NAME
+${CYAN}Admin Email:${NC}          $ADMIN_EMAIL
+${CYAN}MongoDB Database:${NC}     $MONGODB_DATABASE
+
+SUMMARY_EOF
+
+    echo ""
+    read -p "Proceed with this configuration? [y/n]: " CONFIRM_CONFIG
+
+    if [[ ! $CONFIRM_CONFIG =~ ^[Yy]$ ]]; then
+        log_warn "Deployment cancelled by user"
+        exit 0
+    fi
+}
+
 # =============================================================================
 # Welcome Banner
 # =============================================================================
 
 clear
-cat << "EOF"
+
+# Check if auto-deploy mode is enabled
+if [ "$AUTO_DEPLOY" = true ]; then
+    cat << "EOF"
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║         EARTH TO ORBIT - Auto Deployment Mode                ║
+║                                                               ║
+║        Using saved configuration for automatic deployment     ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+EOF
+
+    load_configuration
+
+    # Skip to deployment execution (will be handled below)
+    SKIP_INTERACTIVE=true
+else
+    cat << "EOF"
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
 ║         EARTH TO ORBIT - Deployment Configuration            ║
@@ -109,13 +322,22 @@ cat << "EOF"
 
 EOF
 
-log_info "This script will guide you through the deployment process."
-log_info "All required information will be collected upfront."
-echo ""
+    log_info "This script will guide you through the deployment process."
+    log_info "All required information will be collected upfront."
+
+    if [ "$SAVE_CONFIG" = true ]; then
+        log_info "Configuration will be saved to: $CONFIG_FILE"
+    fi
+
+    echo ""
+    SKIP_INTERACTIVE=false
+fi
 
 # =============================================================================
 # Deployment Mode Selection
 # =============================================================================
+
+if [ "$SKIP_INTERACTIVE" = false ]; then
 
 log_section "STEP 1: Deployment Mode"
 
@@ -671,6 +893,15 @@ if [[ ! $CONFIRM_DEPLOY =~ ^[Yy]$ ]]; then
     log_warn "Deployment cancelled by user"
     exit 0
 fi
+
+# Save configuration if requested
+if [ "$SAVE_CONFIG" = true ]; then
+    echo ""
+    save_configuration
+    echo ""
+fi
+
+fi  # End of SKIP_INTERACTIVE block
 
 # =============================================================================
 # Create Environment File

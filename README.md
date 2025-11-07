@@ -51,7 +51,7 @@ A full-stack Turborepo monorepo featuring Next.js 14, Express API, MongoDB, Razo
 | **Payments**   | Razorpay + Bank Transfer                                    |
 | **Email**      | SMTP or Resend                                                      |
 | **Storage**    | AWS S3 (receipts)                                           |
-| **Deployment** | Docker + docker-compose with automated deployment script        |
+| **Deployment** | Docker + docker-compose with automated deployment script (Ubuntu Server supported) |
 | **Security**   | Helmet, rate limiting, CORS, input validation               |
 
 ---
@@ -267,6 +267,32 @@ cd earth-to-orbit
 # Run interactive deployment script
 sudo bash deploy.sh
 ```
+
+#### Save & Reuse Configuration
+
+**Save configuration for future deployments:**
+```bash
+sudo bash deploy.sh --with-save
+```
+This saves all your answers to `.deploy-config.env` for reuse.
+
+**Auto-deploy with saved configuration:**
+```bash
+sudo bash deploy.sh --auto-deploy
+```
+Deploys automatically using the saved configuration file (no prompts).
+
+**Use custom config file:**
+```bash
+sudo bash deploy.sh --auto-deploy --config /path/to/my-config.env
+```
+
+**View all options:**
+```bash
+bash deploy.sh --help
+```
+
+---
 
 The script will guide you through **13 steps** to configure:
 

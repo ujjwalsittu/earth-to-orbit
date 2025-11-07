@@ -20,6 +20,7 @@ out
 .env.development.local
 .env.test.local
 .env.production.local
+.deploy-config.env
 
 # Debug
 npm-debug.log*

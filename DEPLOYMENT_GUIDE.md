@@ -11,7 +11,7 @@ This guide explains how to deploy the Earth To Orbit platform using the automate
 ### Prerequisites
 
 **What you need:**
-- Linux server (Ubuntu 20.04+, Debian, CentOS, RHEL, or Fedora)
+- Linux server - **Supports Ubuntu Server** (20.04+, 22.04, 24.04), Debian, CentOS, RHEL, or Fedora
 - Root/sudo access
 - Two domain names configured:
   - Web domain (e.g., `myapp.com`)
@@ -26,6 +26,27 @@ sudo bash deploy.sh
 ```
 
 The script will interactively guide you through all configuration steps.
+
+### Save & Auto-Deploy Features
+
+**Save configuration for reuse:**
+```bash
+sudo bash deploy.sh --with-save
+```
+Saves all your answers to `.deploy-config.env` for future deployments.
+
+**Automatic deployment with saved config:**
+```bash
+sudo bash deploy.sh --auto-deploy
+```
+Uses the saved configuration file to deploy automatically without prompts.
+
+**Use custom config file:**
+```bash
+sudo bash deploy.sh --auto-deploy --config /path/to/my-config.env
+```
+
+**⚠️ Security Note:** The `.deploy-config.env` file contains sensitive information (passwords, API keys). Keep it secure and never commit it to version control!
 
 ---
 
