@@ -2,8 +2,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 
-// Load environment variables from root .env file
+// Load environment variables: prefer root .env, then fallback to apps/api/.env
+// This lets you keep demo creds inside apps/api/.env without requiring a root .env.
 dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config({ path: path.join(__dirname, "../apps/api/.env") });
 
 import User, { UserRole } from "../apps/api/src/models/User";
 import Organization, {
@@ -15,8 +17,7 @@ import Lab from "../apps/api/src/models/Lab";
 import Component from "../apps/api/src/models/Component";
 import Staff from "../apps/api/src/models/Staff";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/earth-to-orbit";
+const MONGODB_URI = process.env.MONGODB_URI;
 
 /**
  * Seed database with initial data
@@ -26,7 +27,7 @@ const seedDatabase = async () => {
     console.log("🌱 Starting database seed...\n");
 
     // Connect to MongoDB
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI!);
     console.log("✅ Connected to MongoDB\n");
 
     // Clear existing data

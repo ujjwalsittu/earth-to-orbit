@@ -199,6 +199,8 @@ router.post(
 
       processedItems.push({
         itemType: item.itemType,
+        // Explicitly store the model name for population
+        itemModel: item.itemType === 'lab' ? 'Lab' : 'Component',
         item: item.item,
         quantity: item.quantity,
         startDate,

@@ -12,12 +12,29 @@ import { config } from '@/lib/config';
 export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [stars, setStars] = useState<Array<{
+    left: string;
+    top: string;
+    animationDelay: string;
+    opacity: number;
+  }>>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % 3);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Generate random star positions client-side only to avoid SSR hydration mismatch
+  useEffect(() => {
+    const generated = Array.from({ length: 50 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 3}s`,
+      opacity: Math.random() * 0.7 + 0.3,
+    }));
+    setStars(generated);
   }, []);
 
   return (
@@ -146,17 +163,12 @@ export default function LandingPage() {
           {/* Animated Space Background */}
           <div className="absolute inset-0">
             {/* Stars */}
-            <div className="absolute inset-0">
-              {[...Array(50)].map((_, i) => (
+            <div className="absolute inset-0" suppressHydrationWarning>
+              {stars.map((star, i) => (
                 <div
                   key={i}
                   className="absolute h-1 w-1 bg-white rounded-full animate-twinkle"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 3}s`,
-                    opacity: Math.random() * 0.7 + 0.3
-                  }}
+                  style={star}
                 />
               ))}
             </div>

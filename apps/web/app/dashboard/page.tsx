@@ -32,17 +32,17 @@ export default function DashboardPage() {
       ]);
 
       if (requestsRes.success) {
-        setRecentRequests(requestsRes.data.requests || []);
+        setRecentRequests(requestsRes.data || []);
         setStats((prev) => ({
           ...prev,
-          totalRequests: requestsRes.data.pagination?.total || 0,
+          totalRequests: requestsRes.pagination?.total || 0,
         }));
       }
 
       if (invoicesRes.success) {
         setStats((prev) => ({
           ...prev,
-          totalInvoices: invoicesRes.data.pagination?.total || 0,
+          totalInvoices: invoicesRes.pagination?.total || 0,
         }));
       }
     } catch (error) {

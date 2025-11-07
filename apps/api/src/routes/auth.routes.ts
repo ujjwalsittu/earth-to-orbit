@@ -6,6 +6,7 @@ import User, { UserRole } from '../models/User';
 import Organization from '../models/Organization';
 import { env } from '../config/env';
 import asyncHandler from '../utils/async-handler';
+import { authenticate } from '../middleware/auth.middleware';
 import ApiError from '../utils/api-error';
 import { sendSuccess } from '../utils/response';
 import { validate } from '../middleware/validation.middleware';
@@ -245,6 +246,7 @@ router.post(
  */
 router.get(
   '/me',
+  authenticate,
   asyncHandler(async (req, res) => {
     if (!req.user) {
       throw ApiError.unauthorized('Not authenticated');

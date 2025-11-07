@@ -13,6 +13,8 @@ export enum RequestStatus {
 
 export interface IRequestItem {
   itemType: 'lab' | 'component';
+  // Internal model name used for population
+  itemModel: 'Lab' | 'Component';
   item: mongoose.Types.ObjectId;
   quantity: number;
   startDate: Date;
@@ -94,9 +96,15 @@ const RequestSchema = new Schema<IRequest>(
           enum: ['lab', 'component'],
           required: true,
         },
+        // Store corresponding Mongoose model name for dynamic population
+        itemModel: {
+          type: String,
+          enum: ['Lab', 'Component'],
+          required: true,
+        },
         item: {
           type: Schema.Types.ObjectId,
-          refPath: 'items.itemType',
+          refPath: 'items.itemModel',
           required: true,
         },
         quantity: {
@@ -210,6 +218,22 @@ RequestSchema.index({ organization: 1, status: 1 });
 RequestSchema.index({ user: 1, status: 1 });
 RequestSchema.index({ requestNumber: 1 });
 RequestSchema.index({ createdAt: -1 });
+
+// Ensure itemModel is derived from itemType before validation
+RequestSchema.pre('validate', function (next) {
+  try {
+    if (Array.isArray((this as any).items)) {
+      (this as any).items = (this as any).items.map((it: any) => {
+        // Derive model name from itemType
+        const itemModel = it.itemType === 'lab' ? 'Lab' : 'Component';
+        return { ...it, itemModel };
+      });
+    }
+    next();
+  } catch (err) {
+    next(err as any);
+  }
+});
 
 const Request: Model<IRequest> = mongoose.model<IRequest>('Request', RequestSchema);
 
