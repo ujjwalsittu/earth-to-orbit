@@ -15,6 +15,36 @@ This guide will help you deploy the Earth To Orbit platform to production.
 
 ## Quick Start
 
+### Automated CLI Deployment (Recommended) 🚀
+
+We provide automated deployment scripts for easy deployment to Vercel and Railway:
+
+```bash
+# 1. Install CLI tools
+npm install -g vercel @railway/cli
+
+# 2. Login to both platforms
+vercel login
+railway login
+
+# 3. Deploy API to Railway
+./scripts/deployment/deploy-railway.sh production
+
+# 4. Get Railway API URL
+railway domain
+
+# 5. Set NEXT_PUBLIC_API_URL in Vercel dashboard
+# Visit: https://vercel.com/dashboard → Your Project → Settings → Environment Variables
+# Add: NEXT_PUBLIC_API_URL = https://your-railway-api.railway.app/api
+
+# 6. Deploy Web to Vercel
+./scripts/deployment/deploy-vercel.sh production
+```
+
+That's it! Your application is now deployed. 🎉
+
+### Manual Setup
+
 ### 1. Clone Repository
 
 ```bash
@@ -263,13 +293,23 @@ npm i -g vercel
 # Login
 vercel login
 
-# Deploy
+# Deploy using our automated script (Recommended)
+./scripts/deployment/deploy-vercel.sh preview
+./scripts/deployment/deploy-vercel.sh production
+
+# Or deploy manually
 cd apps/web
 vercel
 
-# Deploy to production
+# Deploy to production manually
 vercel --prod
 ```
+
+**Our deployment script includes:**
+- ✅ Pre-deployment typecheck
+- ✅ Configuration validation
+- ✅ Production confirmation prompts
+- ✅ Colorized progress output
 
 ---
 
@@ -458,8 +498,35 @@ netlify deploy --prod
    - For custom domain (e.g., `api.yourdomain.com`):
      - Add CNAME record: `api.yourdomain.com → your-service.up.railway.app`
 
+**Using Railway CLI:**
+
+```bash
+# Install Railway CLI
+npm i -g @railway/cli
+
+# Login
+railway login
+
+# Link project
+railway link
+
+# Deploy using our automated script (Recommended)
+./scripts/deployment/deploy-railway.sh production
+
+# Or deploy manually
+railway up --environment production
+```
+
+**Our deployment script includes:**
+- ✅ Pre-deployment typecheck
+- ✅ Optional local build verification
+- ✅ Environment variable checklist
+- ✅ Production confirmation prompts
+- ✅ Colorized progress output
+- ✅ Post-deployment instructions
+
 **Configuration Files:**
-- `railway.json` - Railway deployment config
+- `railway.json` - Railway deployment config (fixed for pnpm monorepo)
 - `nixpacks.toml` - Build configuration
 - `Procfile` - Process definitions (web, seed)
 

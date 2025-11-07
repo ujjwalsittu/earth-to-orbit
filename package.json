@@ -22,7 +22,11 @@
     "docker:build": "docker-compose -f infra/docker/docker-compose.yml build",
     "docker:up": "docker-compose -f infra/docker/docker-compose.yml up -d",
     "docker:down": "docker-compose -f infra/docker/docker-compose.yml down",
-    "docker:logs": "docker-compose -f infra/docker/docker-compose.yml logs -f"
+    "docker:logs": "docker-compose -f infra/docker/docker-compose.yml logs -f",
+    "deploy:vercel": "bash scripts/deployment/deploy-vercel.sh",
+    "deploy:railway": "bash scripts/deployment/deploy-railway.sh",
+    "deploy:vercel:prod": "bash scripts/deployment/deploy-vercel.sh production",
+    "deploy:railway:prod": "bash scripts/deployment/deploy-railway.sh production"
   },
   "devDependencies": {
     "turbo": "^1.11.3",
