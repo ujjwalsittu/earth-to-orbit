@@ -24,6 +24,9 @@ COPY packages ./packages
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+# Ensure public directory exists
+RUN mkdir -p apps/web/public
+
 # Build
 RUN pnpm --filter @e2o/web build
 
