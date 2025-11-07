@@ -9,10 +9,23 @@ import Payment, {
 import { generatePaymentId } from "../utils/generate-number";
 import logger from "../utils/logger";
 
-const razorpay = new Razorpay({
-  key_id: env.RAZORPAY_KEY_ID,
-  key_secret: env.RAZORPAY_KEY_SECRET,
-});
+// Lazy initialize Razorpay client only if API keys are provided
+let razorpay: Razorpay | null = null;
+
+const getRazorpayClient = (): Razorpay => {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+    throw new Error("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are not configured. Please set them in your environment variables to enable Razorpay payments.");
+  }
+
+  if (!razorpay) {
+    razorpay = new Razorpay({
+      key_id: env.RAZORPAY_KEY_ID,
+      key_secret: env.RAZORPAY_KEY_SECRET,
+    });
+  }
+
+  return razorpay;
+};
 
 /**
  * Create Razorpay order
@@ -26,7 +39,8 @@ export const createRazorpayOrder = async (
 ): Promise<{ orderId: string; payment: IPayment }> => {
   try {
     // Create Razorpay order
-    const order = await razorpay.orders.create({
+    const client = getRazorpayClient();
+    const order = await client.orders.create({
       amount: Math.round(amount * 100), // Convert to paise
       currency,
       receipt: `receipt_${Date.now()}`,
