@@ -11,9 +11,13 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -22,7 +26,11 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     if (requiredRole && user && !requiredRole.includes(user.role)) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, user, requiredRole, router]);
+  }, [hasHydrated, isAuthenticated, user, requiredRole, router]);
+
+  if (!hasHydrated) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return null;

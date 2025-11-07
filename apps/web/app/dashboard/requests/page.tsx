@@ -39,7 +39,7 @@ export default function RequestsPage() {
     try {
       const response: any = await apiClient.getRequests();
       if (response.success) {
-        setRequests(response.data.requests || []);
+        setRequests(response.data || []);
       }
     } catch (error) {
       console.error('Failed to load requests', error);

@@ -66,9 +66,9 @@ export default function NewRequestPage() {
         apiClient.getComponents(),
       ]);
 
-      if (sitesRes.success) setSites(sitesRes.data.sites || []);
-      if (labsRes.success) setLabs(labsRes.data.labs || []);
-      if (componentsRes.success) setComponents(componentsRes.data.components || []);
+      if (sitesRes.success) setSites(sitesRes.data || []);
+      if (labsRes.success) setLabs(labsRes.data || []);
+      if (componentsRes.success) setComponents(componentsRes.data || []);
     } catch (error) {
       console.error('Failed to load catalog', error);
     }
@@ -80,16 +80,28 @@ export default function NewRequestPage() {
     // Calculate machinery costs
     formData.machineryItems.forEach((item) => {
       const lab = labs.find((l) => l._id === item.labId);
-      if (lab && item.durationHours > 0) {
-        total += lab.ratePerHour * item.durationHours;
+      if (lab && item.requestedStart && item.requestedEnd) {
+        const start = new Date(item.requestedStart);
+        const end = new Date(item.requestedEnd);
+        if (end > start) {
+          const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+          const days = Math.max(1, Math.ceil(hours / 24));
+          total += (lab.pricePerDay || 0) * days;
+        }
       }
     });
 
     // Calculate component costs
     formData.componentItems.forEach((item) => {
       const component = components.find((c) => c._id === item.componentId);
-      if (component && item.quantity > 0) {
-        total += component.pricePerUnit * item.quantity;
+      if (component && item.quantity > 0 && item.startDate && item.endDate) {
+        const start = new Date(item.startDate);
+        const end = new Date(item.endDate);
+        if (end > start) {
+          const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+          const days = Math.max(1, Math.ceil(hours / 24));
+          total += (component.pricePerDay || 0) * item.quantity * days;
+        }
       }
     });
 
@@ -150,7 +162,7 @@ export default function NewRequestPage() {
       ...formData,
       componentItems: [
         ...formData.componentItems,
-        { componentId: '', quantity: 1, isRental: false, rentalDays: 0, notes: '' },
+        { componentId: '', quantity: 1, startDate: '', endDate: '', rentalDays: 0, notes: '' },
       ],
     });
   };
@@ -165,6 +177,15 @@ export default function NewRequestPage() {
   const updateComponentItem = (index: number, field: string, value: any) => {
     const updated = [...formData.componentItems];
     updated[index] = { ...updated[index], [field]: value };
+
+    if (field === 'startDate' || field === 'endDate') {
+      const start = new Date(field === 'startDate' ? value : updated[index].startDate);
+      const end = new Date(field === 'endDate' ? value : updated[index].endDate);
+      if (start && end && end > start) {
+        const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        updated[index].rentalDays = Math.max(1, Math.ceil(hours / 24));
+      }
+    }
     setFormData({ ...formData, componentItems: updated });
   };
 
@@ -191,15 +212,44 @@ export default function NewRequestPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      // Create request
-      const createRes: any = await apiClient.createRequest(formData);
+      // Transform payload to API schema
+      const items: any[] = [];
+
+      // Labs / machinery items
+      formData.machineryItems.forEach((m) => {
+        if (m.labId && m.requestedStart && m.requestedEnd) {
+          items.push({
+            itemType: 'lab',
+            item: m.labId,
+            quantity: 1,
+            startDate: m.requestedStart,
+            endDate: m.requestedEnd,
+          });
+        }
+      });
+
+      // Components
+      formData.componentItems.forEach((c) => {
+        if (c.componentId && c.quantity > 0 && c.startDate && c.endDate) {
+          items.push({
+            itemType: 'component',
+            item: c.componentId,
+            quantity: c.quantity,
+            startDate: c.startDate,
+            endDate: c.endDate,
+          });
+        }
+      });
+
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        items,
+      };
+
+      // Create request (server sets status SUBMITTED)
+      const createRes: any = await apiClient.createRequest(payload);
       if (!createRes.success) throw new Error('Failed to create request');
-
-      const requestId = createRes.data.request._id;
-
-      // Submit for approval
-      const submitRes: any = await apiClient.submitRequest(requestId);
-      if (!submitRes.success) throw new Error('Failed to submit request');
 
       toast({
         title: 'Request submitted successfully',
@@ -331,12 +381,14 @@ export default function NewRequestPage() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select lab" />
                       </SelectTrigger>
-                      <SelectContent>
+                    <SelectContent>
                         {labs
-                          .filter((lab) => !item.siteId || lab.siteId._id === item.siteId)
+                          .filter((lab) =>
+                            !item.siteId || (lab.site && (lab.site._id === item.siteId || lab.site === item.siteId))
+                          )
                           .map((lab) => (
                             <SelectItem key={lab._id} value={lab._id}>
-                              {lab.name} - {formatCurrency(lab.ratePerHour)}/hr
+                              {lab.name} - {formatCurrency(lab.pricePerDay)}/day
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -398,13 +450,13 @@ export default function NewRequestPage() {
             <CardDescription>Add satellite components or parts</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {formData.componentItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No components added yet. Click below to add.
-              </p>
-            ) : (
-              formData.componentItems.map((item, index) => (
-                <div key={index} className="p-4 border rounded-lg space-y-4">
+                {formData.componentItems.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No components added yet. Click below to add.
+                  </p>
+                ) : (
+                  formData.componentItems.map((item, index) => (
+                    <div key={index} className="p-4 border rounded-lg space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold">Component #{index + 1}</h4>
                     <Button variant="ghost" size="sm" onClick={() => removeComponentItem(index)}>
@@ -412,40 +464,63 @@ export default function NewRequestPage() {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Component *</Label>
-                      <Select
-                        value={item.componentId}
-                        onValueChange={(value) => updateComponentItem(index, 'componentId', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select component" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {components.map((comp) => (
-                            <SelectItem key={comp._id} value={comp._id}>
-                              {comp.name} - {formatCurrency(comp.pricePerUnit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Component *</Label>
+                          <Select
+                            value={item.componentId}
+                            onValueChange={(value) => updateComponentItem(index, 'componentId', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select component" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {components.map((comp) => (
+                                <SelectItem key={comp._id} value={comp._id}>
+                                  {comp.name} - {formatCurrency(comp.pricePerDay)}/day
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Quantity *</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateComponentItem(index, 'quantity', parseInt(e.target.value))
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Start Date *</Label>
+                          <Input
+                            type="date"
+                            value={item.startDate}
+                            onChange={(e) => updateComponentItem(index, 'startDate', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>End Date *</Label>
+                          <Input
+                            type="date"
+                            value={item.endDate}
+                            onChange={(e) => updateComponentItem(index, 'endDate', e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      {item.rentalDays > 0 && (
+                        <p className="text-sm text-muted-foreground">Rental duration: {item.rentalDays} day(s)</p>
+                      )}
                     </div>
-                    <div className="space-y-2">
-                      <Label>Quantity *</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateComponentItem(index, 'quantity', parseInt(e.target.value))
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+                  ))
+                )}
 
             <Button variant="outline" onClick={addComponentItem} className="w-full">
               <Plus className="mr-2 h-4 w-4" />

@@ -53,7 +53,8 @@ export default function RegisterPage() {
       const response: any = await apiClient.register(formData);
 
       if (response.success && response.data) {
-        setAuth(response.data.user, response.data.token);
+        // Use access token returned by API
+        setAuth(response.data.user, response.data.accessToken);
         toast({
           title: 'Registration successful',
           description: 'Welcome to Earth To Orbit!',

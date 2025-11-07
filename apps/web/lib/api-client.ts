@@ -140,13 +140,13 @@ class APIClient {
   }
 
   // Availability
-  async checkAvailability(data: {
-    labId: string;
-    siteId: string;
-    start: string;
-    end: string;
+  async checkAvailability(params: {
+    itemId: string;
+    itemType: 'lab' | 'component';
+    startDate: string;
+    endDate: string;
   }) {
-    return this.client.post('/availability/check', data);
+    return this.client.get('/availability/check', { params });
   }
 
   async getCalendar(params?: {

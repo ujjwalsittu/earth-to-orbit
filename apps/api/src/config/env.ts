@@ -1,10 +1,18 @@
 import dotenv from "dotenv";
+import path from "path";
 import { z } from "zod";
 
-// In development/test, load env from a local .env file using default resolution.
+// In development/test, load env from .env files.
+// Prefer root .env, then override with apps/api/.env if present.
 // In production, rely on the hosting platform to inject env vars into process.env.
 if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
+  // Attempt to load root .env
+  const rootEnvPath = path.resolve(process.cwd(), "../../.env");
+  dotenv.config({ path: rootEnvPath });
+
+  // Then load local apps/api .env to override if present
+  const localEnvPath = path.resolve(process.cwd(), ".env");
+  dotenv.config({ path: localEnvPath });
 }
 
 const envSchema = z.object({

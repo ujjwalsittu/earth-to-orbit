@@ -31,7 +31,8 @@ export default function LoginPage() {
       const response: any = await apiClient.login(formData.email, formData.password);
 
       if (response.success && response.data) {
-        setAuth(response.data.user, response.data.token);
+        // API returns `accessToken` and `refreshToken`; use access token for auth
+        setAuth(response.data.user, response.data.accessToken);
         toast({
           title: 'Login successful',
           description: 'Welcome back!',
