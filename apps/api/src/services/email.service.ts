@@ -2,7 +2,20 @@ import { Resend } from "resend";
 import { env } from "../config/env";
 import logger from "../utils/logger";
 
-const resend = new Resend(env.RESEND_API_KEY);
+// Lazy initialize Resend client only if API key is provided
+let resend: Resend | null = null;
+
+const getResendClient = (): Resend => {
+  if (!env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured. Please set it in your environment variables or use SMTP instead.");
+  }
+
+  if (!resend) {
+    resend = new Resend(env.RESEND_API_KEY);
+  }
+
+  return resend;
+};
 
 interface SendEmailOptions {
   to: string | string[];
@@ -18,7 +31,8 @@ export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
   try {
     const { to, subject, html, replyTo } = options;
 
-    await resend.emails.send({
+    const client = getResendClient();
+    await client.emails.send({
       from: `${env.COMPANY_NAME} <${env.COMPANY_EMAIL}>`,
       to: Array.isArray(to) ? to : [to],
       subject,
