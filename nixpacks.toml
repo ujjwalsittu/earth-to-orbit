@@ -13,6 +13,11 @@ cmds = [
   "cd apps/api && pnpm install --no-frozen-lockfile && pnpm build"
 ]
 
+[phases.release]
+cmds = [
+  "echo 'Skipping release tasks (no automatic seed/migrate)'"
+]
+
 [start]
 cmd = "cd apps/api && node dist/server.js"
 
