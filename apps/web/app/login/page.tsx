@@ -25,10 +25,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    console.log('Form submitted, loading state:', loading);
+
+    if (loading) {
+      console.log('Already loading, ignoring submit');
+      return;
+    }
+
     setLoading(true);
 
     try {
       console.log('Attempting login with:', formData.email);
+      console.log('API Client baseURL check');
+
       const response: any = await apiClient.login(formData.email, formData.password);
       console.log('Login response:', response);
 
@@ -68,6 +79,11 @@ export default function LoginPage() {
     }
   };
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    console.log('Button clicked');
+    // Let the form handle the submission
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-950 via-blue-950 to-slate-950 p-4">
       <Card className="w-full max-w-md">
@@ -105,7 +121,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" onClick={handleButtonClick} className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>

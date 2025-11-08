@@ -18,6 +18,7 @@ import adminRoutes from './routes/admin.routes';
 import availabilityRoutes from './routes/availability.routes';
 import notificationRoutes from './routes/notification.routes';
 import organizationRoutes from './routes/organization.routes';
+import testRoutes from './routes/test.routes';
 
 /**
  * Create and configure Express application
@@ -73,6 +74,9 @@ export const createApp = (): Application => {
   app.use('/api/organizations', organizationRoutes);
   app.use('/api/availability', availabilityRoutes);
   app.use('/api/notifications', notificationRoutes);
+
+  // TEST ROUTES - Remove in production
+  app.use('/api/test', testRoutes);
 
   // Rate limiting for API routes
   app.use('/api', apiLimiter);
