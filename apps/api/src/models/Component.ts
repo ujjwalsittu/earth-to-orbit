@@ -5,6 +5,7 @@ export interface IComponent extends Document {
   sku: string;
   name: string;
   category: mongoose.Types.ObjectId;
+  site: mongoose.Types.ObjectId;
   description: string;
   specifications: Map<string, string>;
   images?: string[];
@@ -48,6 +49,12 @@ const ComponentSchema = new Schema<IComponent>(
     category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
+      required: true,
+      index: true,
+    },
+    site: {
+      type: Schema.Types.ObjectId,
+      ref: 'Site',
       required: true,
       index: true,
     },
@@ -124,6 +131,7 @@ const ComponentSchema = new Schema<IComponent>(
 // Indexes for performance
 ComponentSchema.index({ sku: 1 });
 ComponentSchema.index({ category: 1 });
+ComponentSchema.index({ site: 1 });
 ComponentSchema.index({ availability: 1, isActive: 1 });
 ComponentSchema.index({ availableQuantity: 1 });
 ComponentSchema.index({ name: 'text', description: 'text' });

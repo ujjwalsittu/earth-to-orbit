@@ -354,6 +354,7 @@ router.post(
         sku: 'ST-JO-ASTRO15',
         name: 'Star Tracker',
         category: categories[2]._id,
+        site: sites[0]._id,
         description: 'High-precision star tracker for attitude determination. Provides sub-arcsecond accuracy for precise satellite orientation.',
         specifications: new Map([
           ['Accuracy', '< 10 arcsec (3σ)'],
@@ -378,6 +379,7 @@ router.post(
         sku: 'SP-SL-XTJP',
         name: 'Solar Panel (100W)',
         category: categories[3]._id,
+        site: sites[0]._id,
         description: 'Triple-junction GaAs solar panel with 30% efficiency. Radiation hardened for 15-year mission life.',
         specifications: new Map([
           ['Power Output', '100 W BOL'],
@@ -402,6 +404,7 @@ router.post(
         sku: 'RW-HT-RW50',
         name: 'Reaction Wheel',
         category: categories[2]._id,
+        site: sites[0]._id,
         description: 'Precision reaction wheel for three-axis attitude control. Provides fine pointing control and momentum storage.',
         specifications: new Map([
           ['Max Torque', '50 mNm'],
