@@ -14,7 +14,8 @@ interface User {
   firstName: string;
   lastName: string;
   role: string;
-  organizationId: string | Organization; // Can be string ID or populated object
+  organization?: string | Organization; // Can be string ID or populated object
+  organizationId?: string | Organization; // Backward compatibility
 }
 
 interface AuthState {

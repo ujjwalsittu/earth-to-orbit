@@ -9,6 +9,7 @@ class APIClient {
   }
 
   constructor() {
+    console.log('API Client initialized with baseURL:', API_URL);
     this.client = axios.create({
       baseURL: API_URL,
       headers: {

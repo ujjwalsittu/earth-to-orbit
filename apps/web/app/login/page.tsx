@@ -28,7 +28,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      console.log('Attempting login with:', formData.email);
       const response: any = await apiClient.login(formData.email, formData.password);
+      console.log('Login response:', response);
 
       if (response.success && response.data) {
         // API returns `accessToken` and `refreshToken`; use access token for auth
@@ -44,11 +46,21 @@ export default function LoginPage() {
         } else {
           router.push('/dashboard');
         }
+      } else {
+        // Handle unexpected response structure
+        console.error('Unexpected response structure:', response);
+        toast({
+          title: 'Login failed',
+          description: 'Unexpected response from server',
+          variant: 'destructive',
+        });
       }
     } catch (error: any) {
+      console.error('Login error:', error);
+      const errorMessage = error?.message || error?.error || (typeof error === 'string' ? error : 'Invalid credentials');
       toast({
         title: 'Login failed',
-        description: error?.message || 'Invalid credentials',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
