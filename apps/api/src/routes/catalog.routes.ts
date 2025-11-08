@@ -185,7 +185,6 @@ router.get(
     const [components, total] = await Promise.all([
       Component.find(query)
         .populate('category', 'name slug')
-        .populate('site', 'name location')
         .sort({ name: 1 })
         .skip(skip)
         .limit(limitNum),
@@ -213,8 +212,7 @@ router.get(
   '/components/:id',
   asyncHandler(async (req, res) => {
     const component = await Component.findOne({ _id: req.params.id, isActive: true })
-      .populate('category', 'name slug description')
-      .populate('site', 'name location contactEmail contactPhone');
+      .populate('category', 'name slug description');
 
     if (!component) {
       throw ApiError.notFound('Component not found');
