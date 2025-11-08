@@ -221,6 +221,15 @@ export default function NewRequestPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      // Helper function to convert datetime-local format to ISO string
+      const toISOString = (datetimeLocal: string) => {
+        if (!datetimeLocal) return '';
+        // datetime-local format: "2025-11-21T02:08"
+        // Need to add seconds and convert to ISO: "2025-11-21T02:08:00.000Z"
+        const date = new Date(datetimeLocal);
+        return date.toISOString();
+      };
+
       // Transform payload to match API schema
       const machineryItems: any[] = [];
       const components: any[] = [];
@@ -231,8 +240,8 @@ export default function NewRequestPage() {
           machineryItems.push({
             lab: m.labId,
             site: m.siteId,
-            startTime: m.requestedStart,
-            endTime: m.requestedEnd,
+            startTime: toISOString(m.requestedStart),
+            endTime: toISOString(m.requestedEnd),
             notes: m.notes || '',
           });
         }
