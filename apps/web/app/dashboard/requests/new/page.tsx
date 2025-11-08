@@ -76,6 +76,7 @@ export default function NewRequestPage() {
 
   const calculateEstimatedCost = () => {
     let total = 0;
+    let breakdown = { machinery: 0, components: 0, assistance: 0 };
 
     // Calculate machinery costs
     formData.machineryItems.forEach((item) => {
@@ -86,7 +87,9 @@ export default function NewRequestPage() {
         if (end > start) {
           const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
           // Labs charge per hour, not per day
-          total += (lab.ratePerHour || 0) * hours;
+          const cost = (lab.ratePerHour || 0) * hours;
+          breakdown.machinery += cost;
+          total += cost;
         }
       }
     });
@@ -101,7 +104,9 @@ export default function NewRequestPage() {
           const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
           const days = Math.max(1, Math.ceil(hours / 24));
           // Components charge per day for rental
-          total += (component.rentalRatePerDay || 0) * item.quantity * days;
+          const cost = (component.rentalRatePerDay || 0) * item.quantity * days;
+          breakdown.components += cost;
+          total += cost;
         }
       }
     });
@@ -109,12 +114,15 @@ export default function NewRequestPage() {
     // Add assistance (placeholder rate)
     formData.assistanceItems.forEach((item) => {
       if (item.hours > 0) {
-        total += 1500 * item.hours; // ₹1500/hour average
+        const cost = 1500 * item.hours; // ₹1500/hour average
+        breakdown.assistance += cost;
+        total += cost;
       }
     });
 
     // Add GST
     const withGst = total * 1.18;
+    console.log('Cost calculation:', { breakdown, subtotal: total, withGst });
     setEstimatedCost(withGst);
   };
 
@@ -213,31 +221,29 @@ export default function NewRequestPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      // Transform payload to API schema
-      const items: any[] = [];
+      // Transform payload to match API schema
+      const machineryItems: any[] = [];
+      const components: any[] = [];
 
-      // Labs / machinery items
+      // Labs / machinery items - API expects: lab, site, startTime, endTime, notes
       formData.machineryItems.forEach((m) => {
-        if (m.labId && m.requestedStart && m.requestedEnd) {
-          items.push({
-            itemType: 'lab',
-            item: m.labId,
-            quantity: 1,
-            startDate: m.requestedStart,
-            endDate: m.requestedEnd,
+        if (m.labId && m.siteId && m.requestedStart && m.requestedEnd) {
+          machineryItems.push({
+            lab: m.labId,
+            site: m.siteId,
+            startTime: m.requestedStart,
+            endTime: m.requestedEnd,
+            notes: m.notes || '',
           });
         }
       });
 
-      // Components
+      // Components - API expects: component, quantity
       formData.componentItems.forEach((c) => {
-        if (c.componentId && c.quantity > 0 && c.startDate && c.endDate) {
-          items.push({
-            itemType: 'component',
-            item: c.componentId,
+        if (c.componentId && c.quantity > 0) {
+          components.push({
+            component: c.componentId,
             quantity: c.quantity,
-            startDate: c.startDate,
-            endDate: c.endDate,
           });
         }
       });
@@ -245,12 +251,18 @@ export default function NewRequestPage() {
       const payload = {
         title: formData.title,
         description: formData.description,
-        items,
+        machineryItems,
+        components,
+        assistanceItems: formData.assistanceItems.filter(item => item.hours > 0),
       };
+
+      console.log('Submitting request payload:', payload);
 
       // Create request (server sets status SUBMITTED)
       const createRes: any = await apiClient.createRequest(payload);
-      if (!createRes.success) throw new Error('Failed to create request');
+      console.log('Create request response:', createRes);
+
+      if (!createRes.success) throw new Error(createRes.message || 'Failed to create request');
 
       toast({
         title: 'Request submitted successfully',
