@@ -25,8 +25,9 @@ import organizationRoutes from './routes/organization.routes';
 export const createApp = (): Application => {
   const app = express();
 
-  // Trust proxy - Required for rate limiting and getting real client IP behind nginx
-  app.set('trust proxy', true);
+  // Trust proxy - Trust only the first proxy (nginx) for security
+  // This allows rate limiting to work while preventing IP spoofing
+  app.set('trust proxy', 1);
 
   // Security middleware
   app.use(helmet());
