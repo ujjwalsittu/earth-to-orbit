@@ -58,6 +58,7 @@ const navSections = [
       { href: '/admin/organizations', label: 'Organizations', icon: Building2 },
       { href: '/admin/users', label: 'Users', icon: Users },
       { href: '/admin/finance', label: 'Finance', icon: DollarSign },
+      { href: '/admin/settings', label: 'Settings', icon: Settings },
     ],
   },
 ];
