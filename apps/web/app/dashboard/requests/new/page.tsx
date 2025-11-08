@@ -85,8 +85,8 @@ export default function NewRequestPage() {
         const end = new Date(item.requestedEnd);
         if (end > start) {
           const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          const days = Math.max(1, Math.ceil(hours / 24));
-          total += (lab.pricePerDay || 0) * days;
+          // Labs charge per hour, not per day
+          total += (lab.ratePerHour || 0) * hours;
         }
       }
     });
@@ -100,7 +100,8 @@ export default function NewRequestPage() {
         if (end > start) {
           const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
           const days = Math.max(1, Math.ceil(hours / 24));
-          total += (component.pricePerDay || 0) * item.quantity * days;
+          // Components charge per day for rental
+          total += (component.rentalRatePerDay || 0) * item.quantity * days;
         }
       }
     });
@@ -388,7 +389,7 @@ export default function NewRequestPage() {
                           )
                           .map((lab) => (
                             <SelectItem key={lab._id} value={lab._id}>
-                              {lab.name} - {formatCurrency(lab.pricePerDay)}/day
+                              {lab.name} - {formatCurrency(lab.ratePerHour || 0)}/hour
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -477,7 +478,7 @@ export default function NewRequestPage() {
                             <SelectContent>
                               {components.map((comp) => (
                                 <SelectItem key={comp._id} value={comp._id}>
-                                  {comp.name} - {formatCurrency(comp.pricePerDay)}/day
+                                  {comp.name} - {formatCurrency(comp.rentalRatePerDay || 0)}/day
                                 </SelectItem>
                               ))}
                             </SelectContent>
