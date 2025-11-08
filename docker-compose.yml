@@ -6,6 +6,8 @@ services:
     image: mongo:7.0
     container_name: e2o-mongodb
     restart: unless-stopped
+    ports:
+      - "27017:27017"  # Expose MongoDB for external access (MongoDB Compass)
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
