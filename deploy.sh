@@ -936,7 +936,7 @@ SSL_EMAIL=$SSL_EMAIL
 # =============================================================================
 FRONTEND_URL=https://$WEB_DOMAIN
 API_URL=https://$API_DOMAIN
-NEXT_PUBLIC_API_URL=https://$API_DOMAIN
+NEXT_PUBLIC_API_URL=https://$API_DOMAIN/api
 
 # =============================================================================
 # DATABASE CONFIGURATION
