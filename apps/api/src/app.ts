@@ -9,6 +9,7 @@ import { apiLimiter } from './middleware/rate-limit.middleware';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
 import catalogRoutes from './routes/catalog.routes';
 import catalogAdminRoutes from './routes/catalog-admin.routes';
 import requestRoutes from './routes/request.routes';
@@ -65,6 +66,7 @@ export const createApp = (): Application => {
 
   // API routes
   app.use('/api/auth', authRoutes);
+  app.use('/api/users', userRoutes);
   app.use('/api/catalog', catalogRoutes);
   app.use('/api/admin/catalog', catalogAdminRoutes);
   app.use('/api/requests', requestRoutes);
