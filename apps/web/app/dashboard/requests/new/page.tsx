@@ -247,13 +247,23 @@ export default function NewRequestPage() {
         }
       });
 
-      // Components - API expects: component, quantity
+      // Components - API expects: component, quantity, startDate, endDate
       formData.componentItems.forEach((c) => {
         if (c.componentId && c.quantity > 0) {
-          components.push({
+          const componentItem: any = {
             component: c.componentId,
             quantity: c.quantity,
-          });
+          };
+
+          // Add rental dates if provided
+          if (c.startDate) {
+            componentItem.startDate = toISOString(c.startDate);
+          }
+          if (c.endDate) {
+            componentItem.endDate = toISOString(c.endDate);
+          }
+
+          components.push(componentItem);
         }
       });
 

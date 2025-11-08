@@ -30,7 +30,10 @@ export interface IMachineryItem {
 export interface IComponentItem {
   component: mongoose.Types.ObjectId;
   quantity: number;
-  priceSnapshot: number; // Unit price at booking time
+  startDate?: Date; // Rental start date
+  endDate?: Date; // Rental end date
+  rentalDays?: number; // Duration in days
+  priceSnapshot: number; // Rental rate per day at booking time (or unit price if purchase)
   subtotal: number;
 }
 
@@ -194,6 +197,9 @@ const RequestSchema = new Schema<IRequest>(
           required: true,
           min: 1,
         },
+        startDate: Date, // Optional: for rentals
+        endDate: Date, // Optional: for rentals
+        rentalDays: Number, // Optional: calculated duration
         priceSnapshot: {
           type: Number,
           required: true,

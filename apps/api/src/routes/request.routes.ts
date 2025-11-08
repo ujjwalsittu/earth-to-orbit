@@ -49,6 +49,8 @@ const createRequestSchema = z.object({
         z.object({
           component: z.string(),
           quantity: z.number().min(1),
+          startDate: z.string().datetime().optional(),
+          endDate: z.string().datetime().optional(),
         })
       )
       .optional(),
@@ -242,14 +244,28 @@ router.post(
         );
       }
 
-      const priceSnapshot = component.unitPrice;
-      const itemSubtotal = priceSnapshot * item.quantity;
+      // Calculate rental duration if dates are provided
+      let rentalDays = 1; // Default to 1 day for purchase/single-day rental
+      let startDate, endDate;
+      if (item.startDate && item.endDate) {
+        startDate = new Date(item.startDate);
+        endDate = new Date(item.endDate);
+        const hours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+        rentalDays = Math.max(1, Math.ceil(hours / 24));
+      }
+
+      // Use rentalRatePerDay if available, fallback to unitPrice
+      const priceSnapshot = component.rentalRatePerDay || component.unitPrice;
+      const itemSubtotal = priceSnapshot * item.quantity * rentalDays;
 
       componentsSubtotal += itemSubtotal;
 
       processedComponents.push({
         component: item.component,
         quantity: item.quantity,
+        startDate,
+        endDate,
+        rentalDays,
         priceSnapshot,
         subtotal: itemSubtotal,
       });
